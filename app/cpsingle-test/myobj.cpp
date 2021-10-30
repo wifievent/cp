@@ -4,7 +4,7 @@ MyObj::MyObj()
 {
 }
 
-void MyObj::capture(GPacket* packet)
+void MyObj::processCaptured(GPacket* packet)
 {
-    qDebug() << packet->buf_.data_;
+    qDebug() << packet->buf_.size_;
 }
