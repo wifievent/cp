@@ -5,7 +5,6 @@
 #include <GBlock>
 #include <GPcapDeviceWrite>
 #include <GApp>
-#include "myobj.h"
 
 int main(int argc, char *argv[])
 {
@@ -41,29 +40,32 @@ int main(int argc, char *argv[])
                 &arpspoof,
                 SIGNAL(captured(GPacket*)),
                 &filter2,
-                SLOT(check(GPacket*))
+                SLOT(check(GPacket*)),
+                Qt::DirectConnection
                 );
 
     QObject::connect(
                 &filter1,
                 SIGNAL(filtered(GPacket*)),
                 &tcpblock,
-                SLOT(block(GPacket*))
+                SLOT(block(GPacket*)),
+                Qt::DirectConnection
                 );
 
     QObject::connect(
                 &filter2,
                 SIGNAL(filtered(GPacket*)),
                 &block,
-                SLOT(block(GPacket*))
+                SLOT(block(GPacket*)),
+                Qt::DirectConnection
                 );
 
-    arpspoof.open();
     writer.open();
     filter1.open();
     filter2.open();
     block.open();
     tcpblock.open();
+    arpspoof.open();
 
     return a.exec();
 }
