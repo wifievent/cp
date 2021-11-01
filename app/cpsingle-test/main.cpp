@@ -11,40 +11,8 @@ int main(int argc, char *argv[])
 {
     GApp a(argc, argv);
 
-    MyObj myobj1;
-    MyObj myobj2;
-    MyObj myobj3;
-
     GAutoArpSpoof arpspoof;
-    /*
-    //X
-    QObject::connect(
-                &arpspoof,
-                SIGNAL(GCapture::captured),
-                &myobj1,
-                SLOT(processCaptured1),
-                Qt::DirectConnection
-                );*/
-    //X
 
-//    QObject::connect(
-//                &arpspoof,
-//                SIGNAL(captured(GPacket*)),
-//                &myobj1,
-//                SLOT(processCaptured1(GPacket*)),
-//                Qt::DirectConnection
-//                );
-    /*
-    //O
-    QObject::connect(
-                &arpspoof,
-                &GCapture::captured,
-                &myobj1,
-                &MyObj::processCaptured1,
-                Qt::DirectConnection
-                );
-    */
-    /*
     GPcapDeviceWrite writer;
 
     GBpFilter filter1;
@@ -63,40 +31,39 @@ int main(int argc, char *argv[])
 
     QObject::connect(
                 &arpspoof,
-                SIGNAL(captured),
+                SIGNAL(captured(GPacket*)),
                 &filter1,
-                SLOT(check)
+                SLOT(check(GPacket*)),
+                Qt::DirectConnection
                 );
 
     QObject::connect(
                 &arpspoof,
-                SIGNAL(captured),
+                SIGNAL(captured(GPacket*)),
                 &filter2,
-                SLOT(check)
+                SLOT(check(GPacket*))
                 );
 
     QObject::connect(
                 &filter1,
-                &GBpFilter::filtered,
+                SIGNAL(filtered(GPacket*)),
                 &tcpblock,
-                &GTcpBlock::block
+                SLOT(block(GPacket*))
                 );
 
     QObject::connect(
                 &filter2,
-                &GBpFilter::filtered,
+                SIGNAL(filtered(GPacket*)),
                 &block,
-                &GBlock::block
+                SLOT(block(GPacket*))
                 );
 
     arpspoof.open();
+    writer.open();
     filter1.open();
     filter2.open();
     block.open();
     tcpblock.open();
-    writer.open();
-    */
 
-    arpspoof.open();
     return a.exec();
 }
