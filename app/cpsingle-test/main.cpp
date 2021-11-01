@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     GTcpBlock tcpblock;
     tcpblock.backwardRst_ = false;
     tcpblock.backwardFin_ = true;
-    tcpblock.backwardFinMsg_ = QStringList{"HTTP/1.0 302 Redirected\r\nLocation: http://wifievent.io\r\n\r\n"};
+    tcpblock.backwardFinMsg_ = QStringList{"HTTP/1.0 302 Redirected\r\nLocation: http://test.gilgil.net/ek.jpg\r\n\r\n"};
     tcpblock.writer_ = &writer;
 
     GBlock block;
@@ -44,17 +44,34 @@ int main(int argc, char *argv[])
                 &arpspoof,
                 &GCapture::captured,
                 &httpfilter,
-                &GBpFilter::check
+                &GBpFilter::check //error! there is two check func in GBpFilter
                 );
 
     QObject::connect(
                 &arpspoof,
                 &GCapture::captured,
                 &httpsfilter,
-                &GBpFilter::check
+                &GBpFilter::check //error! there is two check func in GBpFilter
                 );
 
+    QObject::connect(
+                &httpfilter,
+                &GBpFilter::notFiltered,
+                &tcpblock,
+                &GTcpBlock::block
+                );
+
+    QObject::connect(
+                &httpsfilter,
+                &GBpFilter::notFiltered,
+                &block,
+                &GBlock::block
+                );
+
+    block.open();
     tcpblock.open();
+    httpfilter.open();
+    httpsfilter.open();
     arpspoof.open();
 
     return a.exec();
