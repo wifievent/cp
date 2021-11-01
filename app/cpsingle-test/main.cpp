@@ -1,36 +1,57 @@
 #include <QCoreApplication>
-#include <GBpFilter>
 #include <GAutoArpSpoof>
+#include <GBpFilter>
 #include <GTcpBlock>
 #include <GBlock>
 #include <GPcapDeviceWrite>
-#include <QObject>
-#include <GPacket>
+#include <GApp>
 #include "myobj.h"
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
+    GApp a(argc, argv);
+
+    MyObj myobj1;
+    MyObj myobj2;
+    MyObj myobj3;
 
     GAutoArpSpoof arpspoof;
+    /*
+    //X
+    QObject::connect(
+                &arpspoof,
+                SIGNAL(GCapture::captured),
+                &myobj1,
+                SLOT(processCaptured1),
+                Qt::DirectConnection
+                );*/
+    //X
 
-    MyObj myObj;
-
+//    QObject::connect(
+//                &arpspoof,
+//                SIGNAL(captured(GPacket*)),
+//                &myobj1,
+//                SLOT(processCaptured1(GPacket*)),
+//                Qt::DirectConnection
+//                );
+    /*
+    //O
     QObject::connect(
                 &arpspoof,
                 &GCapture::captured,
-                &myObj,
-                &MyObj::processCaptured,
+                &myobj1,
+                &MyObj::processCaptured1,
                 Qt::DirectConnection
                 );
-
+    */
+    /*
     GPcapDeviceWrite writer;
 
-    GBpFilter httpfilter;
-    httpfilter.filter_ = "(port 80 and tcp[((tcp[12:1] & 0xf0) >> 2):4] = 0x47455420) && !(host 175.213.35.39)";
+    GBpFilter filter1;
+    filter1.filter_ = "(port 80 and tcp[((tcp[12:1] & 0xf0) >> 2):4] = 0x47455420) && !(host 175.213.35.39)";
 
-    GBpFilter httpsfilter;
-    httpsfilter.filter_ = "tcp port 443";
+    GBpFilter filter2;
+    filter2.filter_ = "tcp port 443";
 
     GTcpBlock tcpblock;
     tcpblock.backwardRst_ = false;
@@ -42,37 +63,40 @@ int main(int argc, char *argv[])
 
     QObject::connect(
                 &arpspoof,
-                &GCapture::captured,
-                &httpfilter,
-                &GBpFilter::check //error! there is two check func in GBpFilter
+                SIGNAL(captured),
+                &filter1,
+                SLOT(check)
                 );
 
     QObject::connect(
                 &arpspoof,
-                &GCapture::captured,
-                &httpsfilter,
-                &GBpFilter::check //error! there is two check func in GBpFilter
+                SIGNAL(captured),
+                &filter2,
+                SLOT(check)
                 );
 
     QObject::connect(
-                &httpfilter,
-                &GBpFilter::notFiltered,
+                &filter1,
+                &GBpFilter::filtered,
                 &tcpblock,
                 &GTcpBlock::block
                 );
 
     QObject::connect(
-                &httpsfilter,
-                &GBpFilter::notFiltered,
+                &filter2,
+                &GBpFilter::filtered,
                 &block,
                 &GBlock::block
                 );
 
+    arpspoof.open();
+    filter1.open();
+    filter2.open();
     block.open();
     tcpblock.open();
-    httpfilter.open();
-    httpsfilter.open();
-    arpspoof.open();
+    writer.open();
+    */
 
+    arpspoof.open();
     return a.exec();
 }

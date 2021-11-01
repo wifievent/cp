@@ -12,5 +12,7 @@ public:
     ~MyObj() override {};
 
 public slots:
-    void processCaptured(GPacket* packet);
+    void processCaptured1(GPacket* packet);
+    void processCaptured2(GPacket* packet);
+    void processCaptured3(GPacket *packet);
 };
