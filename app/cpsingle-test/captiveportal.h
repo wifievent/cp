@@ -6,16 +6,16 @@ class CaptivePortal : public GStateObj
 {
     Q_OBJECT
 
-    GAutoArpSpoof arpspoof;
-    GPcapDeviceWrite writer; //delete and make it code
-    GBpFilter filter1; //delete and make it code
-    GBpFilter filter2; //delete and make it code
-    GTcpBlock tcpblock; //delete and make it code
-    GBlock block; //delete and make it code
+    GAutoArpSpoof arpspoof_;
+    GTcpBlock tcpblock_;
+    GPcapDeviceWrite writer_;
+
+    string redirectpage_;
+    GIp host_;
 
 public:
-    CaptivePortal();
-    ~CaptivePortal() override {};
+    CaptivePortal(QString redirectpage);
+    ~CaptivePortal() override {close();};
 
 private:
     void setComponent();
@@ -25,10 +25,5 @@ protected:
     bool doClose() override;
 
 public slots:
-    void checkPacket(GPacket* packet);
-    void blockPacket(GPacket* packet);
-
-signals:
-    void filtered80(GPacket* packet);
-    void filtered443(GPacket* pakcet);
+    void processPacket(GPacket* packet);
 };

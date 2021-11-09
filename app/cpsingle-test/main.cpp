@@ -5,8 +5,10 @@ int main(int argc, char *argv[])
 {
     GApp a(argc, argv);
 
-    CaptivePortal cp;
-    cp.open();
+    //Json setting
+
+    CaptivePortal* cp = new CaptivePortal("test.gilgil.net");
+    cp->open();
 
     return a.exec();
 }

@@ -2,16 +2,20 @@
 
 #include <QCoreApplication>
 
-#include <GPacket>
-#include <GStateObj>
 #include <GAutoArpSpoof>
-#include <GBpFilter>
 #include <GTcpBlock>
-#include <GBlock>
 #include <GPcapDeviceWrite>
 #include <GApp>
 
 #include <QObject>
 #include <QString>
+#include <QThread>
 
-#include <string.h>
+#include <cstring>
+#include <string>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
+using namespace std;
