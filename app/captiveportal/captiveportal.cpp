@@ -9,9 +9,7 @@ CaptivePortal::CaptivePortal(QString redirectpage, QString intfname)
     char host[16];
 
     redirectpage_ = redirectpage;
-
-    intfname_ = intfname; //get list of intfname
-
+    intfname_ = intfname;
     domain = getDomainAtUrl(redirectpage.toStdString());
 
     memset(&hints, 0, sizeof(hints));

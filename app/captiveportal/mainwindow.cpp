@@ -3,40 +3,70 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui_(new Ui::MainWindow)
 {
-    ui->setupUi(this);
+    ui_->setupUi(this);
     this->setFixedSize(this->geometry().width(),this->geometry().height());
-    ui->comboBox->addItems();
+    if(setIntfnameList())
+    {
+        ui_->comboBox->addItems(intfnamelist_);
+    }
     initCheck = true;
 }
 
 MainWindow::~MainWindow()
 {
-    if(!(cp->close()))
+    if(!(cp_->close()))
     {
         qDebug() << "failed to close cp";
     }
-    delete ui;
+    if(cp_ != nullptr)
+    {
+        delete cp_;
+    }
+    delete ui_;
+}
+
+bool MainWindow::setIntfnameList()
+{
+    QString devname;
+    pcap_if_t* dev;
+    char errBuf[PCAP_ERRBUF_SIZE];
+    int check = pcap_findalldevs(&dev, errBuf);
+    if (check != 0)
+    {
+        qDebug() << "error";
+        return false;
+    }
+    while (dev != nullptr)
+    {
+        devname = dev->name;
+        qInfo() << "interface name: " << devname;
+        intfnamelist_.append(devname);
+        dev = dev->next;
+    }
+    pcap_freealldevs(dev);
+    return true;
 }
 
 void MainWindow::on_btnStartStop_clicked()
 {
-    if(ui->btnStartStop->text() == "start")
+    if(ui_->btnStartStop->text() == "start")
     {
-        qInfo() << "redirect url=" << ui->lineEdit->text()
+        qInfo() << "redirect url=" << ui_->lineEdit->text()
                 << ","
-                << "intfname=" << ui->comboBox->currentText();
-        cp = new CaptivePortal(ui->lineEdit->text(), ui->comboBox->currentText());
-        ui->btnStartStop->setText("stop");
+                << "intfname=" << ui_->comboBox->currentText();
+        cp_ = new CaptivePortal(ui_->lineEdit->text(), ui_->comboBox->currentText());
+        ui_->btnStartStop->setText("stop");
     }
-    else if(ui->btnStartStop->text() == "stop")
+    else if(ui_->btnStartStop->text() == "stop")
     {
-        if(!(cp->close()))
+        if(!(cp_->close()))
         {
             qDebug() << "failed to close cp";
             exit(1);
         }
-        ui->btnStartStop->setText("start");
+        delete cp_;
+        ui_->btnStartStop->setText("start");
     }
 }

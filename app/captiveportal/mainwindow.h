@@ -16,12 +16,16 @@ public:
     bool initCheck{false};
 
 private:
-    Ui::MainWindow *ui;
-    CaptivePortal *cp;
+    Ui::MainWindow *ui_;
+    CaptivePortal *cp_;
+    QStringList intfnamelist_;
 
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+private:
+    bool setIntfnameList();
 
 private slots:
     void on_btnStartStop_clicked();
