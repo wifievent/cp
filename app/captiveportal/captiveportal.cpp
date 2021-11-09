@@ -2,7 +2,6 @@
 
 CaptivePortal::CaptivePortal(QString redirectpage, QString intfname)
 {
-
     string domain;
     struct addrinfo *servinfo;
     struct addrinfo hints;
@@ -27,7 +26,6 @@ CaptivePortal::CaptivePortal(QString redirectpage, QString intfname)
                 NULL,
                 0,
                 NI_NUMERICHOST);
-
 
     QString ip = QString(host);
     host_ = GIp(ip);

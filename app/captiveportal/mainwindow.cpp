@@ -57,6 +57,7 @@ void MainWindow::on_btnStartStop_clicked()
                 << ","
                 << "intfname=" << ui_->comboBox->currentText();
         cp_ = new CaptivePortal(ui_->lineEdit->text(), ui_->comboBox->currentText());
+        cp_->open();
         ui_->btnStartStop->setText("stop");
     }
     else if(ui_->btnStartStop->text() == "stop")

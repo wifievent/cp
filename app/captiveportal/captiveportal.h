@@ -6,6 +6,8 @@ using namespace std;
 
 class CaptivePortal : public GStateObj
 {
+    Q_OBJECT
+
     GAutoArpSpoof capturer_;
     GTcpBlock tcpblock_;
     GPcapDeviceWrite writer_;
