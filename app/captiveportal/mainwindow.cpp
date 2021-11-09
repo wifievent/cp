@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui_->setupUi(this);
     this->setFixedSize(this->geometry().width(),this->geometry().height());
+    this->setWindowTitle("Captive Portal");
     if(setIntfnameList())
     {
         ui_->comboBox->addItems(intfnamelist_);
