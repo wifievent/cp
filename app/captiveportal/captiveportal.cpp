@@ -1,15 +1,23 @@
 #include "captiveportal.h"
 
-CaptivePortal::CaptivePortal(QString redirectpage)
+CaptivePortal::CaptivePortal(QString redirectpage, QString intfname)
 {
+
+    string domain;
     struct addrinfo *servinfo;
-    char host[16];
-    redirectpage_ = redirectpage.toStdString();
     struct addrinfo hints;
+    char host[16];
+
+    redirectpage_ = redirectpage;
+
+    intfname_ = intfname; //get list of intfname
+
+    domain = getDomainAtUrl(redirectpage.toStdString());
+
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    if(getaddrinfo(redirectpage_.c_str(), NULL, &hints, &servinfo))
+    if(getaddrinfo(domain.c_str(), NULL, &hints, &servinfo))
     {
         qDebug() << "failed to get host ip";
         exit(1);
@@ -40,12 +48,37 @@ CaptivePortal::CaptivePortal(QString redirectpage)
 
 void CaptivePortal::setComponent()
 {
+    capturer_.intfName_ = intfname_;
+
     tcpblock_.backwardRst_ = false;
     tcpblock_.backwardFin_ = true;
     tcpblock_.backwardFinMsg_ = QStringList{"HTTP/1.0 302 Redirected\r\n"
-                                            "Location: http://test.gilgil.net/ek.jpg\r\n"
+                                            "Location: "+redirectpage_+"\r\n"
                                             "\r\n"};
     tcpblock_.writer_ = &writer_;
+}
+
+string CaptivePortal::getDomainAtUrl(string url)
+{
+    string result;
+    int cursorbegin = 0, cursorend = 0;
+    if((cursorend = url.find("https://", cursorbegin)) != string::npos)
+    {
+        cursorbegin += 8;
+    }
+    else if((cursorend = url.find("http://", cursorbegin)) != string::npos)
+    {
+        cursorbegin += 7;
+    }
+    if((cursorend = url.find("/", cursorbegin)) != string::npos)
+    {
+        result = url.substr(cursorbegin, cursorend-cursorbegin);
+    }
+    else if((cursorend = url.find("/", cursorbegin)) == string::npos)
+    {
+        result = url.substr(cursorbegin);
+    }
+    return result;
 }
 
 bool CaptivePortal::doOpen()
@@ -115,7 +148,9 @@ void CaptivePortal::processPacket(GPacket *packet)
             qDebug() << "there is no tcpdata in packet";
             return;
         }
-        qDebug() << uint32_t(packet->ipHdr_->dip()) << ", " << uint32_t(host_) << "check both ip address";
+        qDebug() << uint32_t(packet->ipHdr_->dip())
+                 << ", "
+                 << uint32_t(host_) << "check both ip address";
         if(strncmp(castedtcpdata, "GET ", 4) == 0 && packet->ipHdr_->dip() != host_)
         {
             qDebug() << "Send redirect page data to client";
