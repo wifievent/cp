@@ -12,6 +12,7 @@
 #include <QString>
 #include <QThread>
 #include <QJsonObject>
+#include <QUrl>
 
 #include <cstring>
 #include <string>

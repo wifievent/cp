@@ -12,6 +12,12 @@ MainWindow::MainWindow(QWidget *parent)
     {
         ui_->comboBox->addItems(intfnamelist_);
     }
+
+    cp_ = new CaptivePortal(this);
+
+    QJsonObject jo = GJson::loadFromFile();
+    jo["MainWindow"] >> *cp_;
+
     initCheck = true;
 }
 
@@ -21,6 +27,11 @@ MainWindow::~MainWindow()
     {
         qDebug() << "failed to close cp";
     }
+
+    QJsonObject jo = GJson::loadFromFile();
+    jo["MainWindow"] << *cp_;
+    GJson::saveToFile(jo);
+
     if(cp_ != nullptr)
     {
         delete cp_;
@@ -57,7 +68,8 @@ void MainWindow::on_btnStartStop_clicked()
         qInfo() << "redirect url=" << ui_->lineEdit->text()
                 << ","
                 << "intfname=" << ui_->comboBox->currentText();
-        cp_ = new CaptivePortal(ui_->lineEdit->text(), ui_->comboBox->currentText());
+        cp_->intfname_ = ui_->comboBox->currentText();
+        cp_->redirectpage_ = ui_->lineEdit->text();
         cp_->open();
         ui_->btnStartStop->setText("stop");
     }
@@ -68,7 +80,6 @@ void MainWindow::on_btnStartStop_clicked()
             qDebug() << "failed to close cp";
             exit(1);
         }
-        delete cp_;
         ui_->btnStartStop->setText("start");
     }
 }

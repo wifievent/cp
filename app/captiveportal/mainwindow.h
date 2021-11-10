@@ -12,13 +12,12 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-public:
-    bool initCheck{false};
-
-private:
     Ui::MainWindow *ui_;
     CaptivePortal *cp_;
     QStringList intfnamelist_;
+
+public:
+    bool initCheck{false};
 
 public:
     MainWindow(QWidget *parent = nullptr);

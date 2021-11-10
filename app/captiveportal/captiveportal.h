@@ -11,24 +11,26 @@ class CaptivePortal : public GStateObj
     GAutoArpSpoof capturer_;
     GTcpBlock tcpblock_;
     GPcapDeviceWrite writer_;
-
-    QString redirectpage_;
     GIp host_;
 
 public:
-    QString intfname_{"eth0"};
+    QString intfname_;
+    QString redirectpage_;
 
 public:
-    CaptivePortal(QString redirectpage, QString intfname);
+    CaptivePortal(QWidget *parent = nullptr);
     ~CaptivePortal() override {close();};
 
 private:
     void setComponent();
-    string getDomainAtUrl(string url);
 
 protected:
     bool doOpen() override;
     bool doClose() override;
+
+public:
+    void propLoad(QJsonObject jo) override;
+    void propSave(QJsonObject& jo) override;
 
 public slots:
     void processPacket(GPacket* packet);
