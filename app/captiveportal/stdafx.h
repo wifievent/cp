@@ -16,6 +16,8 @@
 
 #include <cstring>
 #include <string>
+#include <algorithm>
+#include <functional>
 
 #include <sys/types.h>
 #include <sys/socket.h>

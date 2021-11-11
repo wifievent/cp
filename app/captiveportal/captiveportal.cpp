@@ -143,5 +143,11 @@ void CaptivePortal::processPacket(GPacket *packet)
             qDebug() << "Send redirect page data to client";
             tcpblock_.block(packet);
         }
+        if(strncmp(castedtcpdata, "POST ", 5) == 0 && packet->ipHdr_->dip() == host_)
+        {
+            //if (auto it = std::search(haystack.begin(), haystack.end(), std::boyer_moore_searcher(needle.begin(), needle.end())); it != haystack.end())
+            qDebug() << "infection off";
+            capturer_.removeFlows(packet->ipHdr_->dip(), packet->ipHdr_->sip(), packet->ipHdr_->sip(), packet->ipHdr_->dip());
+        }
     }
 }
