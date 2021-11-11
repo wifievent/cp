@@ -30,12 +30,12 @@ bool CaptivePortal::doOpen()
     struct addrinfo hints;
     char host[16];
 
-    string domain = url.host().toStdString();
+    QString domain = url.host();
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    if(getaddrinfo(domain.c_str(), NULL, &hints, &servinfo))
+    if(getaddrinfo(qPrintable(domain), NULL, &hints, &servinfo))
     {
         qDebug() << "failed to get host ip";
         exit(1);
@@ -94,7 +94,7 @@ bool CaptivePortal::doClose()
 
 void CaptivePortal::propLoad(QJsonObject jo)
 {
-    jo["captiveportal"] >> *this;
+    GProp::propLoad(jo);
     jo["capturer"] >> capturer_;
     jo["tcpblock"] >> tcpblock_;
     jo["writer"] >> writer_;
@@ -102,7 +102,7 @@ void CaptivePortal::propLoad(QJsonObject jo)
 
 void CaptivePortal::propSave(QJsonObject &jo)
 {
-    jo["captiveportal"] << *this;
+    GProp::propSave(jo);
     jo["capturer"] << capturer_;
     jo["tcpblock"] << tcpblock_;
     jo["writer"] << writer_;

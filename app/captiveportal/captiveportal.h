@@ -7,6 +7,8 @@ using namespace std;
 class CaptivePortal : public GStateObj
 {
     Q_OBJECT
+    Q_PROPERTY(QString intfname MEMBER intfname_)
+    Q_PROPERTY(QString redirectpage MEMBER redirectpage_)
 
     GAutoArpSpoof capturer_;
     GTcpBlock tcpblock_;

@@ -18,6 +18,9 @@ MainWindow::MainWindow(QWidget *parent)
     QJsonObject jo = GJson::loadFromFile();
     jo["MainWindow"] >> *cp_;
 
+    ui_->lineEdit->setText(cp_->redirectpage_);
+    ui_->comboBox->setCurrentText(cp_->intfname_);
+
     initCheck = true;
 }
 
@@ -29,6 +32,8 @@ MainWindow::~MainWindow()
     }
 
     QJsonObject jo = GJson::loadFromFile();
+    cp_->redirectpage_ = ui_->lineEdit->text();
+    cp_->intfname_ = ui_->comboBox->currentText();
     jo["MainWindow"] << *cp_;
     GJson::saveToFile(jo);
 
