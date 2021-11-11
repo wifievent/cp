@@ -13,11 +13,13 @@ class CaptivePortal : public GStateObj
     GAutoArpSpoof capturer_;
     GTcpBlock tcpblock_;
     GPcapDeviceWrite writer_;
+
     GIp host_;
 
 public:
     QString intfname_;
     QString redirectpage_;
+    GIp gwIp_;
 
 public:
     CaptivePortal(QWidget *parent = nullptr);

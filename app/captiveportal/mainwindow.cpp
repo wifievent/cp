@@ -66,6 +66,13 @@ bool MainWindow::setIntfnameList()
     return true;
 }
 
+GIp MainWindow::getGatewayIp()
+{
+    GRtmEntry* entry = GNetInfo::instance().rtm().getBestEntry(QString("8.8.8.8"));
+    GIp gwIp = entry->gateway();
+    return gwIp;
+}
+
 void MainWindow::on_btnStartStop_clicked()
 {
     if(ui_->btnStartStop->text() == "start")
@@ -74,6 +81,7 @@ void MainWindow::on_btnStartStop_clicked()
                 << ","
                 << "intfname=" << ui_->comboBox->currentText();
         cp_->intfname_ = ui_->comboBox->currentText();
+        cp_->gwIp_ = getGatewayIp();
         cp_->redirectpage_ = ui_->lineEdit->text();
         cp_->open();
         ui_->btnStartStop->setText("stop");

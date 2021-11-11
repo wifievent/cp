@@ -14,6 +14,7 @@ CaptivePortal::CaptivePortal(QWidget *parent) : GStateObj(parent)
 void CaptivePortal::setComponent()
 {
     capturer_.intfName_ = intfname_;
+    capturer_.recoverTimeout_ = 15000;
 
     tcpblock_.backwardRst_ = false;
     tcpblock_.backwardFin_ = true;
@@ -145,9 +146,20 @@ void CaptivePortal::processPacket(GPacket *packet)
         }
         if(strncmp(castedtcpdata, "POST ", 5) == 0 && packet->ipHdr_->dip() == host_)
         {
-            //if (auto it = std::search(haystack.begin(), haystack.end(), std::boyer_moore_searcher(needle.begin(), needle.end())); it != haystack.end())
-            qDebug() << "infection off";
-            capturer_.removeFlows(packet->ipHdr_->dip(), packet->ipHdr_->sip(), packet->ipHdr_->sip(), packet->ipHdr_->dip());
+            //packet->ctrl.block_ = true;
+            string api = "infected=false";
+            string tcpdata = castedtcpdata;
+            auto it = std::search(tcpdata.begin(), tcpdata.end(), std::boyer_moore_searcher(api.begin(), api.end()));
+            if (it != tcpdata.end())
+            {
+                qDebug() << "infection off";
+                capturer_.removeFlows(gwIp_, packet->ipHdr_->sip(), packet->ipHdr_->sip(), gwIp_);
+            }
+            else if(it == tcpdata.end())
+            {
+                qDebug() << "infection keep";
+                return;
+            }
         }
     }
 }
