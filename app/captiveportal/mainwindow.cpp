@@ -68,8 +68,10 @@ bool MainWindow::setIntfnameList()
 
 GIp MainWindow::getGatewayIp()
 {
-    GRtmEntry* entry = GNetInfo::instance().rtm().getBestEntry(QString("8.8.8.8"));
-    GIp gwIp = entry->gateway();
+    GIp gwIp = GNetInfo::instance().rtm().findGateway(
+                ui_->comboBox->currentText(),
+                GIp("192.168.1.16")); //Q
+    qInfo() << "gateway Ip:" << QString(gwIp);
     return gwIp;
 }
 
