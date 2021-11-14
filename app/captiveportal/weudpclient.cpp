@@ -1,16 +1,15 @@
-#include "cpudpclient.h"
+#include "weudpclient.h"
 
-CpUdpClient::CpUdpClient()
+WEUdpClient::WEUdpClient()
 {
 }
 
-CpUdpClient::~CpUdpClient()
+WEUdpClient::~WEUdpClient()
 {
 }
 
-bool CpUdpClient::searchProduct(int port, int sec, int millisec, string protocol)
+bool WEUdpClient::searchProduct(int port, int sec, int millisec, string protocol)
 {
-    protocol += "\n";
     strncpy(sendbuf_, protocol.c_str(), protocol.length());
     setSocketBroadcastable();
     setRecvTimeout(sec, millisec);

@@ -2,14 +2,14 @@
 #include "udp.h"
 #include "udpclient.h"
 
-class CpUdpClient : public UdpClient
+class WEUdpClient : public UdpClient
 {
     char sendbuf_[BUFSIZE];
     char recvbuf_[BUFSIZE];
 
 public:
-    CpUdpClient();
-    ~CpUdpClient();
+    WEUdpClient();
+    ~WEUdpClient();
 
 public:
     bool searchProduct(int port, int sec, int millisec, string protocol);

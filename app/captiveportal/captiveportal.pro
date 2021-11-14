@@ -12,28 +12,26 @@ include(../../cp.pri)
 
 DESTDIR = $${PWD}/../../bin
 
-#RESOURCES += image.qrc
+RESOURCES += image.qrc
 
 SOURCES += \
     ../../src/socket.cpp \
     ../../src/udpclient.cpp \
     ../../src/udpsocket.cpp \
-    cpudpclient.cpp \
-    cpudpserver.cpp \
     mainwindow.cpp \
     captiveportal.cpp \
-    main.cpp
+    main.cpp \
+    weudpclient.cpp
 
 HEADERS += \
     ../../src/socket.h \
     ../../src/udpclient.h \
     ../../src/udpsocket.h \
     ../../src/udp.h \
-    cpudpclient.h \
-    cpudpserver.h \
     mainwindow.h \
     captiveportal.h \
-    stdafx.h
+    stdafx.h \
+    weudpclient.h
 
 FORMS += \
     mainwindow.ui
