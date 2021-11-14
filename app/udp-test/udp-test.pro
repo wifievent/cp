@@ -10,5 +10,16 @@ INCLUDEPATH *= $${PWD}/../../src
 
 DESTDIR = $${PWD}/../../bin
 
+include(../../../g/g.pri)
+
 SOURCES += \
-        main.cpp
+        main.cpp \
+        ../../src/socket.cpp \
+        ../../src/udpclient.cpp \
+        ../../src/udpsocket.cpp
+
+HEADERS += \
+        ../../src/socket.h \
+        ../../src/udp.h \
+        ../../src/udpclient.h \
+        ../../src/udpsocket.h

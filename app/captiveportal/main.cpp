@@ -1,3 +1,4 @@
+#include "cpudpclient.h"
 #include "mainwindow.h"
 
 const char* version()
@@ -13,11 +14,20 @@ const char* version()
 
 int main(int argc, char *argv[])
 {
-    qDebug() << "CaptivePortal Started" << version();
     GApp a(argc, argv);
+    CpUdpClient client;
+    if(client.searchProduct(7284, 1, 0, "run already?"))
+    {
+        qDebug() << "Captive Portal stop thanks to using";
+        return 0;
+    }
+    else
+    {
+        qInfo() << "CaptivePortal Started" << version();
+    }
 
-//    QIcon icon(":/image/logo/logo.ico");
-//    a.setWindowIcon(icon);
+    //QIcon icon(":/logo/logo1.ico");
+    //a.setWindowIcon(icon);
 
     MainWindow w;
     if (!w.initCheck)

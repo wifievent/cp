@@ -8,15 +8,29 @@ TEMPLATE = app
 CONFIG += qt
 
 include(../../../g/g.pri)
+include(../../cp.pri)
 
 DESTDIR = $${PWD}/../../bin
 
+#RESOURCES += image.qrc
+
 SOURCES += \
+    ../../src/socket.cpp \
+    ../../src/udpclient.cpp \
+    ../../src/udpsocket.cpp \
+    cpudpclient.cpp \
+    cpudpserver.cpp \
     mainwindow.cpp \
     captiveportal.cpp \
     main.cpp
 
 HEADERS += \
+    ../../src/socket.h \
+    ../../src/udpclient.h \
+    ../../src/udpsocket.h \
+    ../../src/udp.h \
+    cpudpclient.h \
+    cpudpserver.h \
     mainwindow.h \
     captiveportal.h \
     stdafx.h
