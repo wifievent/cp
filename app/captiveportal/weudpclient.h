@@ -11,6 +11,9 @@ public:
     WEUdpClient();
     ~WEUdpClient();
 
+protected:
+    void setSockAddrBroadcast(int port);
+
 public:
     bool searchProduct(int port, int sec, int millisec, string protocol);
 };

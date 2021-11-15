@@ -29,18 +29,6 @@ void UdpClient::setSockAddr(string ip, int port)
     memset(&sockAddr_.sin_zero, 0, sizeof(sockAddr_.sin_zero));
 }
 
-void UdpClient::setSockAddrBroadcast(int port)
-{
-    //myIp or !netmask
-    GRtmEntry* entry = GNetInfo::instance().rtm().getBestEntry(QString("8.8.8.8"));
-    GIp broadcastip = entry->intf()->gateway() | ~(entry->intf()->mask());
-    qInfo() << "gateway ip:" << QString(entry->intf()->gateway());
-    qInfo() << "mask:" << QString(entry->intf()->mask());
-    qInfo() << "broadcast ip:" << QString(broadcastip);
-    setSockAddr(QString(broadcastip).toStdString(), port);
-    return;
-}
-
 void UdpClient::setRecvTimeout(int sec, int millisec)
 {
     struct timeval optVal = {sec, millisec}; //sec, millisec

@@ -26,8 +26,8 @@ int main(int argc, char *argv[])
         qInfo() << "CaptivePortal Started" << version();
     }
 
-    QIcon icon(":/logo/logo1.ico");
-    a.setWindowIcon(icon);
+    //QIcon icon(":/logo/logo1.ico");
+    //a.setWindowIcon(icon);
 
     MainWindow w;
     if (!w.initCheck)

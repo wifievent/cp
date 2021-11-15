@@ -12,6 +12,5 @@ public:
 public:
     bool setSocketBroadcastable();
     void setSockAddr(string ip, int port);
-    void setSockAddrBroadcast(int port);
     void setRecvTimeout(int sec, int millisec);
 };

@@ -26,3 +26,15 @@ bool WEUdpClient::searchProduct(int port, int sec, int millisec, string protocol
     qDebug() << "There is no wifievent product...";
     return false;
 }
+
+void WEUdpClient::setSockAddrBroadcast(int port)
+{
+    //myIp or !netmask
+    GRtmEntry* entry = GNetInfo::instance().rtm().getBestEntry(QString("8.8.8.8"));
+    GIp broadcastip = entry->intf()->gateway() | ~(entry->intf()->mask());
+    qInfo() << "gateway ip:" << QString(entry->intf()->gateway());
+    qInfo() << "mask:" << QString(entry->intf()->mask());
+    qInfo() << "broadcast ip:" << QString(broadcastip);
+    setSockAddr(QString(broadcastip).toStdString(), port);
+    return;
+}
