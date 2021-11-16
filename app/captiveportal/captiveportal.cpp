@@ -19,14 +19,14 @@ void CaptivePortal::setComponent()
     tcpblock_.backwardRst_ = false;
     tcpblock_.backwardFin_ = true;
     tcpblock_.backwardFinMsg_ = QStringList{"HTTP/1.0 302 Redirected\r\n"
-                                            "Location: "+redirectpage_+"\r\n"
+                                            "Location: http://wifievent.io/"+redirectpage_+"\r\n"
                                             "\r\n"};
     tcpblock_.writer_ = &writer_;
 }
 
 bool CaptivePortal::doOpen()
 {
-    QUrl url = redirectpage_;
+    QUrl url = "http://wifievent.io/"+redirectpage_;
     struct addrinfo *servinfo;
     struct addrinfo hints;
     char host[16];
@@ -51,7 +51,7 @@ bool CaptivePortal::doOpen()
 
     QString ip = QString(host);
     host_ = GIp(ip);
-    qInfo() << "domain=" << redirectpage_ << "," << "ip=" << QString(host_);
+    qInfo() << "domain=" << "http://wifievent.io/"+redirectpage_ << "," << "ip=" << QString(host_);
 
     setComponent();
 

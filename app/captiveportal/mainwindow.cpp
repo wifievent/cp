@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "weupdater.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -20,6 +21,28 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui_->lineEdit->setText(cp_->redirectpage_);
     ui_->comboBox->setCurrentText(cp_->intfname_);
+
+    const char *v =
+    #include "../../version.txt"
+            ;
+
+    WEUpdater weupdater;
+    if(weupdater.checkVersion("http://wifievent.io/version/cp.txt", v))
+    {
+        QPalette redtext;
+        redtext.setColor(QPalette::WindowText, Qt::red);
+        ui_->label_5->setPalette(redtext);
+        ui_->label_5->setText("There is new version");
+        qDebug() << "something action to do in product(print notion that \'you have to update!\')\n";
+    }
+    else
+    {
+        QPalette blacktext;
+        blacktext.setColor(QPalette::WindowText, Qt::black);
+        ui_->label_5->setPalette(blacktext);
+        ui_->label_5->setText("latest version");
+        qDebug() << "there is no new version of product\n";
+    }
 
     initCheck = true;
 }
@@ -70,7 +93,7 @@ GIp MainWindow::getGatewayIp()
 {
     GIp gwIp = GNetInfo::instance().rtm().findGateway(
                 ui_->comboBox->currentText(),
-                GIp("192.168.1.16")); //Q
+                GIp("8.8.8.8"));
     qInfo() << "gateway Ip:" << QString(gwIp);
     return gwIp;
 }

@@ -1,4 +1,5 @@
 #include "weudpclient.h"
+#include "weudpserver.h"
 #include "mainwindow.h"
 
 const char* version()
@@ -26,6 +27,9 @@ int main(int argc, char *argv[])
         qInfo() << "CaptivePortal Started" << version();
     }
 
+    WEUdpServer ws;
+    ws.start(7284);
+
     //QIcon icon(":/logo/logo1.ico");
     //a.setWindowIcon(icon);
 
@@ -39,4 +43,5 @@ int main(int argc, char *argv[])
         w.show();
         a.exec();
     }
+    ws.stop();
 }
