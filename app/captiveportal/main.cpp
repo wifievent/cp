@@ -30,8 +30,8 @@ int main(int argc, char *argv[])
     WEUdpServer ws;
     ws.start(7284);
 
-    //QIcon icon(":/logo/logo1.ico");
-    //a.setWindowIcon(icon);
+    QIcon icon(":/image/logo/logo1.ico"); // :/image == image.qrc
+    a.setWindowIcon(icon);
 
     MainWindow w;
     if (!w.initCheck)
