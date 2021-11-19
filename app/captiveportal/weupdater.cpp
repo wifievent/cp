@@ -84,13 +84,14 @@ bool WEUpdater::checkVersion(QString versionurl, string currentversion)
     versionresponse_.addResponsePacket(buf, len);
     versionresponse_.parseResponsePacket();
     string latestversion = versionresponse_.getResponseBody().erase(versionresponse_.getResponseBody().length() - 2, 2);
+    latestversion = latestversion.erase(0, 1);
     qDebug() << "latest version:" << latestversion.c_str();
     qDebug() << "current version:" << currentversion.c_str();
 
     int current[4];
     int latest[4];
-    sscanf(latestversion.c_str(), "\"v%d.%d.%d.%d\"", &latest[0], &latest[1], &latest[2], &latest[3]);
-    sscanf(currentversion.c_str(), "\"v%d.%d.%d.%d\"", &current[0], &current[1], &current[2], &current[3]);
+    sscanf(latestversion.c_str(), "v%d.%d.%d.%d", &latest[0], &latest[1], &latest[2], &latest[3]);
+    sscanf(currentversion.c_str(), "v%d.%d.%d.%d", &current[0], &current[1], &current[2], &current[3]);
     for(int i = 0; i < 4; i++)
     {
         if(latest[i] > current[i])
