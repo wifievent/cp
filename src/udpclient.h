@@ -1,16 +1,19 @@
-#pragma once
-#include "udpsocket.h"
+#ifndef UDPCLIENT_H
+#define UDPCLIENT_H
 
-using namespace std;
+#include "udpsocket.h"
+#include <string>
 
 class UdpClient : public UdpSocket
 {
 public:
-    UdpClient();
-    ~UdpClient();
+    UdpClient() {}
+    ~UdpClient() {}
 
 public:
     bool setSocketBroadcastable();
-    void setSockAddr(string ip, int port);
+    void setSockAddr(std::string ip, int port);
     void setRecvTimeout(int sec, int millisec);
 };
+
+#endif // UDPCLIENT_H

@@ -3,9 +3,9 @@
 UdpSocket::UdpSocket()
 {
     if((sock_=socket(PF_INET, SOCK_DGRAM, 0)) < 0)
-    {
-        qDebug() << "socket create failed";
-    }
+       {
+           qDebug() << "socket create failed";
+       }
 }
 
 UdpSocket::~UdpSocket()
@@ -20,8 +20,12 @@ int UdpSocket::send(char *buf, size_t len)
 
 int UdpSocket::recv(char *buf, size_t len)
 {
+#ifdef Q_OS_WIN
+    int sockLen = sizeof(sockAddr_);
+#endif
+#ifdef Q_OS_LINUX
     socklen_t sockLen = sizeof(sockAddr_);
-    memset(&sockAddr_, 0, sizeof(sockAddr_));
+#endif
     memset(buf, 0, len);
     ssize_t res = ::recvfrom(sock_, buf, len, 0, (struct sockaddr*)&sockAddr_, &sockLen);
     return res;
@@ -32,7 +36,12 @@ int UdpSocket::disconnect()
     int result = 0;
     if(sock_ != 0)
     {
+#ifdef Q_OS_WIN
+        ::shutdown(sock_, SD_BOTH);
+#endif
+#ifdef Q_OS_LINUX
         ::shutdown(sock_, SHUT_RDWR);
+#endif
         result = ::close(sock_);
         sock_ = 0;
     }
