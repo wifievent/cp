@@ -2,18 +2,22 @@
 
 CaptivePortal::CaptivePortal(QWidget *parent) : GStateObj(parent)
 {
-    QObject::connect(
-                &capturer_,
-                SIGNAL(captured(GPacket*)),
-                this,
-                SLOT(processPacket(GPacket*)),
-                Qt::DirectConnection
-                );
+	capturer_.hostDetect_.checkDhcp_ = true;
+	capturer_.hostDetect_.checkArp_ = true;
+	capturer_.hostDetect_.checkIp_ = true;
 
     tcpblock_.backwardRst_ = false;
     tcpblock_.backwardFin_ = true;
 
-    tcpblock_.writer_ = &writer_;
+	QObject::connect(
+				&capturer_,
+				SIGNAL(captured(GPacket*)),
+				this,
+				SLOT(processPacket(GPacket*)),
+				Qt::DirectConnection
+				);
+
+	tcpblock_.writer_ = &writer_;
 }
 
 void CaptivePortal::setComponent()
@@ -148,6 +152,7 @@ void CaptivePortal::processPacket(GPacket *packet)
 		GBuf tcpData = packet->tcpData_;
 		if(!tcpData.valid())
 			return;
+
 		const char* castedtcpdata = reinterpret_cast<const char*>(tcpData.data_);
 		if(strncmp(castedtcpdata, "GET ", 4) == 0 && ipHdr->dip() != host_)
         {
@@ -162,7 +167,7 @@ void CaptivePortal::processPacket(GPacket *packet)
             if (it != tcpdata.end())
             {
 				qDebug() << "infection off" << QString(ipHdr->sip());
-				capturer_.removeFlows(gwIp_, ipHdr->sip(), ipHdr->sip(), gwIp_);
+				capturer_.removeFlows(ipHdr->sip(), gwIp_, gwIp_, ipHdr->sip());
             }
             else if(it == tcpdata.end())
             {
