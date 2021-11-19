@@ -8,7 +8,7 @@ WEUdpClient::~WEUdpClient()
 {
 }
 
-bool WEUdpClient::searchProduct(int port, int sec, int millisec, string protocol)
+bool WEUdpClient::searchProduct(int port, int sec, int millisec, std::string protocol)
 {
     strncpy(sendbuf_, protocol.c_str(), protocol.length());
     setSocketBroadcastable();

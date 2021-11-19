@@ -1,6 +1,6 @@
 #pragma once
-#include "udp.h"
 #include "udpclient.h"
+#include <GNetInfo>
 
 class WEUdpClient : public UdpClient
 {
@@ -15,5 +15,5 @@ protected:
     void setSockAddrBroadcast(int port);
 
 public:
-    bool searchProduct(int port, int sec, int millisec, string protocol);
+    bool searchProduct(int port, int sec, int millisec, std::string protocol);
 };

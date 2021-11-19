@@ -1,5 +1,7 @@
 #include "httprequest.h"
 
+using namespace std;
+
 HTTPRequest::HTTPRequest()
 {
     body_ = "";

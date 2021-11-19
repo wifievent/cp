@@ -1,8 +1,5 @@
 #pragma once
-#include "stdafx.h"
 #include "tcpsocket.h"
-
-using namespace std;
 
 class TcpClient : public TcpSocket //tcp
 {
@@ -14,5 +11,5 @@ public:
     ~TcpClient();
 
 public:
-    int connect(string ip, int port);
+    int connect(std::string ip, int port);
 };

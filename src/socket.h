@@ -6,6 +6,9 @@
 # include <stdlib.h>
 # include <unistd.h>
 
+#include <string>
+#include <QDebug>
+
 #include <QtGlobal>
 
 #ifdef Q_OS_WIN

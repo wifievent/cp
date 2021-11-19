@@ -1,7 +1,4 @@
-#include "stdafx.h"
 #include "socket.h"
-
-using namespace std;
 
 class TcpSocket : public Socket
 {

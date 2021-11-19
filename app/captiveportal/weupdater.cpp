@@ -1,5 +1,7 @@
 #include "weupdater.h"
 
+using namespace std;
+
 WEUpdater::WEUpdater()
 {
 

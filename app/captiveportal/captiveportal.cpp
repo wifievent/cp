@@ -156,8 +156,8 @@ void CaptivePortal::processPacket(GPacket *packet)
         }
 		if(strncmp(castedtcpdata, "POST ", 5) == 0)
         {
-            string api = "infected=false";
-            string tcpdata = castedtcpdata;
+            std::string api = "infected=false";
+            std::string tcpdata = castedtcpdata;
 			auto it = std::search(tcpdata.begin(), tcpdata.end(), std::boyer_moore_searcher(api.begin(), api.end()));
             if (it != tcpdata.end())
             {

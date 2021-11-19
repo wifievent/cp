@@ -3,16 +3,14 @@
 #include "stdafx.h"
 #include "http.h"
 
-using namespace std;
-
 class HTTPResponse
 {
     Protocol protocol_;
     size_t statuscode_;
-    string reasonphrase_;
-    vector<pair<string, string>> headers_;
-    string body_;
-    string responsepacket_;
+    std::string reasonphrase_;
+    std::vector<std::pair<std::string, std::string>> headers_;
+    std::string body_;
+    std::string responsepacket_;
 
 	public:
 		HTTPResponse();
@@ -24,17 +22,17 @@ class HTTPResponse
         int setStatusCode(size_t argstatuscode);
 		size_t getStatusCode();
 		int setReasonPhrase();
-		string getReasonPhrase();
-		int setHTTPHeader(string name, string content);
-		string getHTTPHeader(string name);
-        int setHTTPHeaderVector(vector<pair<string, string>>* headervector);
-		vector<pair<string, string>>* getHTTPHeaderVector();
-        int setResponseBody(string argbody);
-		string getResponseBody();
+        std::string getReasonPhrase();
+        int setHTTPHeader(std::string name, std::string content);
+        std::string getHTTPHeader(std::string name);
+        int setHTTPHeaderVector(std::vector<std::pair<std::string, std::string>>* headervector);
+        std::vector<std::pair<std::string, std::string>>* getHTTPHeaderVector();
+        int setResponseBody(std::string argbody);
+        std::string getResponseBody();
 
 		int makeResponse();
 		int parseResponsePacket();
 		size_t getResponseSize();
-		string* getResponseData();
-        string updateCursor(size_t& cursorbegin, size_t& cursorend, string target, string obj, size_t next);
+        std::string* getResponseData();
+        std::string updateCursor(size_t& cursorbegin, size_t& cursorend, std::string target, std::string obj, size_t next);
 };

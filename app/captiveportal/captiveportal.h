@@ -2,8 +2,6 @@
 
 #include "stdafx.h"
 
-using namespace std;
-
 class CaptivePortal : public GStateObj
 {
     Q_OBJECT

@@ -1,5 +1,7 @@
 #include "httpresponse.h"
 
+using namespace std;
+
 HTTPResponse::HTTPResponse()
 {
     body_ = "";

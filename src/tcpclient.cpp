@@ -1,5 +1,7 @@
 #include "tcpclient.h"
 
+using namespace std;
+
 TcpClient::TcpClient()
 {
 }

@@ -3,44 +3,42 @@
 #include "stdafx.h"
 #include "http.h"
 
-using namespace std;
-
 class HTTPRequest
 {
     Method method_;
-    string url_;
+    std::string url_;
     Protocol protocol_;
-    string hostname_;
-    string useragent_;
+    std::string hostname_;
+    std::string useragent_;
 
-    vector<pair<string, string>> headers_;
-    string body_;
-    string requestpacket_;
+    std::vector<std::pair<std::string, std::string>> headers_;
+    std::string body_;
+    std::string requestpacket_;
 
     public:
         HTTPRequest();
         ~HTTPRequest();
         void addRequestPacket(char* buf, int& len);
-        void addRequestBody(string& str);
+        void addRequestBody(std::string& str);
 
         int setMethod(Method argmethod);
         Method getMethod();
-        int setURL(string argurl);
-        string getURL();
+        int setURL(std::string argurl);
+        std::string getURL();
         int setProtocol(Protocol argprotocol);
 		Protocol getProtocol();
-        int setUserAgent(string arguseragent);
-		string getUserAgent();
-		int setHTTPHeader(string name, string content);
-		string getHTTPHeader(string name);
-        int setHTTPHeaderVector(vector<pair<string, string>>* headervector);
-		vector<pair<string, string>>* getHTTPHeaderVector();
-        int setRequestBody(string argbody);
-		string getRequestBody();
+        int setUserAgent(std::string arguseragent);
+        std::string getUserAgent();
+        int setHTTPHeader(std::string name, std::string content);
+        std::string getHTTPHeader(std::string name);
+        int setHTTPHeaderVector(std::vector<std::pair<std::string, std::string>>* headervector);
+        std::vector<std::pair<std::string, std::string>>* getHTTPHeaderVector();
+        int setRequestBody(std::string argbody);
+        std::string getRequestBody();
 
         int parseRequestPacket();
 		int makeRequest();
 		size_t getRequestSize();
-		string* getRequestData();
-        string updateCursor(size_t& cursorbegin, size_t& cursorend, string target, string obj, size_t next);
+        std::string* getRequestData();
+        std::string updateCursor(size_t& cursorbegin, size_t& cursorend, std::string target, std::string obj, size_t next);
 };

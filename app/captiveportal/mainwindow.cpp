@@ -9,10 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui_->setupUi(this);
     this->setFixedSize(this->geometry().width(),this->geometry().height());
     this->setWindowTitle("Captive Portal");
-    if(setIntfnameList())
-    {
-        ui_->comboBox->addItems(intfnamelist_);
-    }
+    setIntfnameList();
 
     cp_ = new CaptivePortal(this);
 
@@ -20,7 +17,8 @@ MainWindow::MainWindow(QWidget *parent)
     jo["MainWindow"] >> *cp_;
 
     ui_->lineEdit->setText(cp_->redirectpage_);
-    ui_->comboBox->setCurrentText(cp_->intfname_);
+    ui_->comboBox->setCurrentIndex(ui_->comboBox->findData(cp_->intfname_));
+    //ui_->comboBox->setCurrentText(cp_->intfname_);
 
     const char *v =
     #include "../../version.txt"
@@ -56,7 +54,7 @@ MainWindow::~MainWindow()
 
     QJsonObject jo = GJson::loadFromFile();
     cp_->redirectpage_ = ui_->lineEdit->text();
-    cp_->intfname_ = ui_->comboBox->currentText();
+    cp_->intfname_ = ui_->comboBox->currentData().toString();
     jo["MainWindow"] << *cp_;
     GJson::saveToFile(jo);
 
@@ -82,7 +80,12 @@ bool MainWindow::setIntfnameList()
     {
         devname = dev->name;
         qInfo() << "interface name: " << devname;
-        intfnamelist_.append(devname);
+#ifdef Q_OS_WIN
+        ui_->comboBox->addItem(dev->description, devname);
+#endif
+#ifdef Q_OS_LINUX
+        ui_->comboBox->addItem(devname, devname);
+#endif
         dev = dev->next;
     }
     pcap_freealldevs(dev);
@@ -105,7 +108,7 @@ void MainWindow::on_btnStartStop_clicked()
         qInfo() << "redirect url=" << ui_->lineEdit->text()
                 << ","
                 << "intfname=" << ui_->comboBox->currentText();
-        cp_->intfname_ = ui_->comboBox->currentText();
+        cp_->intfname_ = ui_->comboBox->currentData().toString();
         cp_->gwIp_ = getGatewayIp();
         cp_->redirectpage_ = ui_->lineEdit->text();
         cp_->open();

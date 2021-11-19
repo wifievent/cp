@@ -1,6 +1,5 @@
 #pragma once
 #include "stdafx.h"
-#include "tcp.h"
 #include "tcpclient.h"
 #include "httprequest.h"
 #include "httpresponse.h"
@@ -20,5 +19,5 @@ protected:
     void setHttpRequest();
 
 public:
-    bool checkVersion(QString versionurl, string currentversion);
+    bool checkVersion(QString versionurl, std::string currentversion);
 };
