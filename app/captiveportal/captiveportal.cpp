@@ -111,48 +111,58 @@ void CaptivePortal::propSave(QJsonObject &jo)
 
 void CaptivePortal::processPacket(GPacket *packet)
 {
-    const char* castedtcpdata = nullptr;
-    if(packet->ethHdr_->type() != GEthHdr::Ip4)
+	GEthHdr* ethHdr = packet->ethHdr_;
+	if (ethHdr == nullptr) {
+		qCritical() << "ethHdr is null";
+		return;
+	}
+
+	if (ethHdr->type() != GEthHdr::Ip4)
+        return;
+
+	GIpHdr* ipHdr = packet->ipHdr_;
+	if (ipHdr == nullptr) {
+		qCritical() << "ipHdr is null";
+		return;
+	}
+
+	if(ipHdr->p() != GIpHdr::Tcp)
+        return;
+
+	GTcpHdr* tcpHdr = packet->tcpHdr_;
+
+	if (tcpHdr == nullptr) {
+		qCritical() << "tcpHdr is null";
+		return;
+	}
+
+	if (tcpHdr->dport() == 443)
     {
+		if (ipHdr->dip() != host_)
+			packet->ctrl.block_ = true;
         return;
     }
-    if(packet->ipHdr_->p() != GIpHdr::Tcp)
+
+	if (tcpHdr->dport() == 80)
     {
-        return;
-    }
-    if(packet->tcpHdr_->dport() == 443)
-    {
-        packet->ctrl.block_ = true;
-        return;
-    }
-    else if(packet->tcpHdr_->dport() == 80)
-    {
-        if(packet->tcpData_.valid())
-        {
-            castedtcpdata = reinterpret_cast<const char*>(packet->tcpData_.data_);
-        }
-        else
-        {
-            return;
-        }
-        qDebug() << uint32_t(packet->ipHdr_->dip())
-                 << ", "
-                 << uint32_t(host_) << "check both ip address";
-        if(strncmp(castedtcpdata, "GET ", 4) == 0 && packet->ipHdr_->dip() != host_)
+		GBuf tcpData = packet->tcpData_;
+		if(!tcpData.valid())
+			return;
+		const char* castedtcpdata = reinterpret_cast<const char*>(tcpData.data_);
+		if(strncmp(castedtcpdata, "GET ", 4) == 0 && ipHdr->dip() != host_)
         {
             qDebug() << "Send redirect page data to client";
             tcpblock_.block(packet);
         }
-        if(strncmp(castedtcpdata, "POST ", 5) == 0 && packet->ipHdr_->dip() == host_)
+		if(strncmp(castedtcpdata, "POST ", 5) == 0)
         {
-            //packet->ctrl.block_ = true;
             string api = "infected=false";
             string tcpdata = castedtcpdata;
-            auto it = std::search(tcpdata.begin(), tcpdata.end(), std::boyer_moore_searcher(api.begin(), api.end()));
+			auto it = std::search(tcpdata.begin(), tcpdata.end(), std::boyer_moore_searcher(api.begin(), api.end()));
             if (it != tcpdata.end())
             {
-                qDebug() << "infection off";
-                capturer_.removeFlows(gwIp_, packet->ipHdr_->sip(), packet->ipHdr_->sip(), gwIp_);
+				qDebug() << "infection off" << QString(ipHdr->sip());
+				capturer_.removeFlows(gwIp_, ipHdr->sip(), ipHdr->sip(), gwIp_);
             }
             else if(it == tcpdata.end())
             {
