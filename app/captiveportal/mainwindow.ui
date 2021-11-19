@@ -83,24 +83,11 @@
    <widget class="QLineEdit" name="lineEdit">
     <property name="geometry">
      <rect>
-      <x>319</x>
+      <x>199</x>
       <y>80</y>
-      <width>211</width>
+      <width>331</width>
       <height>40</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>90</y>
-      <width>131</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>http://wifievent.io/</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_5">

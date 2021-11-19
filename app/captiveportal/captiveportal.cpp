@@ -9,24 +9,24 @@ CaptivePortal::CaptivePortal(QWidget *parent) : GStateObj(parent)
                 SLOT(processPacket(GPacket*)),
                 Qt::DirectConnection
                 );
+
+    tcpblock_.backwardRst_ = false;
+    tcpblock_.backwardFin_ = true;
+
+    tcpblock_.writer_ = &writer_;
 }
 
 void CaptivePortal::setComponent()
 {
     capturer_.intfName_ = intfname_;
-    capturer_.recoverTimeout_ = 15000;
-
-    tcpblock_.backwardRst_ = false;
-    tcpblock_.backwardFin_ = true;
-    tcpblock_.backwardFinMsg_ = QStringList{"HTTP/1.0 302 Redirected\r\n"
-                                            "Location: http://wifievent.io/"+redirectpage_+"\r\n"
+    tcpblock_.backwardFinMsg_ = QStringList{"HTTP/1.0 302 Redirect\r\n"
+                                            "Location: "+redirectpage_+"\r\n"
                                             "\r\n"};
-    tcpblock_.writer_ = &writer_;
 }
 
 bool CaptivePortal::doOpen()
 {
-    QUrl url = "http://wifievent.io/"+redirectpage_;
+    QUrl url = redirectpage_;
     struct addrinfo *servinfo;
     struct addrinfo hints;
     char host[16];
