@@ -51,7 +51,7 @@ bool CaptivePortal::doOpen()
 
     QString ip = QString(host);
     host_ = GIp(ip);
-    qInfo() << "domain=" << "http://wifievent.io/"+redirectpage_ << "," << "ip=" << QString(host_);
+	qInfo() << "domain=" << redirectpage_ << "," << "ip=" << QString(host_);
 
     setComponent();
 
@@ -133,7 +133,6 @@ void CaptivePortal::processPacket(GPacket *packet)
         }
         else
         {
-            qDebug() << "there is no tcpdata in packet";
             return;
         }
         qDebug() << uint32_t(packet->ipHdr_->dip())
