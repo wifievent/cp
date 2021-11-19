@@ -18,7 +18,9 @@ void WEUdpServer::stop() {
 void WEUdpServer::handleCnt() {
     char buf[BUFSIZ];
     while(check) {
+        qDebug() << "server running";
         int res = recv(buf, sizeof(buf));
+        qDebug() << "server recv pass";
         if(res > 0) {
             qDebug() << "buf: " << buf;
 
