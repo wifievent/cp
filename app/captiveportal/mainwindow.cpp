@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
         QPalette blacktext;
         blacktext.setColor(QPalette::WindowText, Qt::black);
         ui_->label_5->setPalette(blacktext);
-        ui_->label_5->setText("latest version");
+        ui_->label_5->setText("This is latest version");
         qDebug() << "there is no new version of product\n";
     }
 
