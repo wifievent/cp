@@ -100,7 +100,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>There is new version</string>
+     <string>There is latest version</string>
     </property>
    </widget>
   </widget>
