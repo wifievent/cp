@@ -23,7 +23,7 @@ CaptivePortal::CaptivePortal(QWidget *parent) : GStateObj(parent)
 void CaptivePortal::setComponent()
 {
     capturer_.intfName_ = intfname_;
-    tcpblock_.backwardFinMsg_ = QStringList{"HTTP/1.0 302 Redirect\r\n"
+	tcpblock_.backwardFinMsg_ = QStringList{"HTTP/1.1 302 Found\r\n"
                                             "Location: "+redirectpage_+"\r\n"
                                             "\r\n"};
 }
