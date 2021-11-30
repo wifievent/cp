@@ -1,26 +1,29 @@
 #pragma once
 
 #include "stdafx.h"
-
-class CaptivePortal : public GStateObj
+#include "tcpblock.h"
+#include "pcapdevice.h"
+#include "ip.h"
+#include "spdlog/spdlog.h"
+class CaptivePortal : public Obj
 {
     Q_OBJECT
     Q_PROPERTY(QString intfname MEMBER intfname_)
     Q_PROPERTY(QString redirectpage MEMBER redirectpage_)
 
     GAutoArpSpoof capturer_;
-    GTcpBlock tcpblock_;
-    GPcapDeviceWrite writer_;
+    TcpBlock tcpblock_;
+    PcapDevice writer_;
 
-    GIp host_;
-
-public:
-    QString intfname_;
-    QString redirectpage_;
-    GIp gwIp_;
+    Ip host_;
 
 public:
-    CaptivePortal(QWidget *parent = nullptr);
+    std::string intfname_;
+    std::string redirectpage_;
+    Ip gwIp_;
+
+public:
+    CaptivePortal();
     ~CaptivePortal() override {close();};
 
 private:
@@ -31,9 +34,9 @@ protected:
     bool doClose() override;
 
 public:
-    void propLoad(QJsonObject jo) override;
-    void propSave(QJsonObject& jo) override;
+    //void propLoad(QJsonObject jo) override;
+    //void propSave(QJsonObject& jo) override;
 
 public slots:
-    void processPacket(GPacket* packet);
+    void processPacket(Packet* packet);
 };

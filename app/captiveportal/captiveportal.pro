@@ -7,10 +7,16 @@ CONFIG += c++17
 TEMPLATE = app
 CONFIG += qt
 
-include(../../../g/g.pri)
+include(../../../opennet/opennet.pri)
 include(../../cp.pri)
 
 DESTDIR = $${PWD}/../../bin
+
+LIBS += -LSS{PWD}/../../../opennet/bin -lopennet
+
+INCLUDEPATH += $${PWD}/../../../opennet/src
+INCLUDEPATH += $${PWD}/../../../opennet/include
+PRE_TARGETDEPS += $${PWD}/../../../opennet/bin/libOpenNet.a
 
 RESOURCES += image.qrc
 
