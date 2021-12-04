@@ -1,21 +1,8 @@
 #include "captiveportal.h"
-CaptivePortal::CaptivePortal()
+CaptivePortal::CaptivePortal(QWidget *parent)
 {
-	capturer_.hostDetect_.checkDhcp_ = true;
-	capturer_.hostDetect_.checkArp_ = true;
-	capturer_.hostDetect_.checkIp_ = true;
-
     tcpblock_.backwardRst_ = false;
     tcpblock_.backwardFin_ = true;
-
-	QObject::connect(
-				&capturer_,
-				SIGNAL(captured(GPacket*)),
-				this,
-				SLOT(processPacket(GPacket*)),
-				Qt::DirectConnection
-				);
-
 	tcpblock_.writer_ = &writer_;
 }
 
@@ -83,6 +70,9 @@ bool CaptivePortal::doOpen()
         spdlog::info("failed to open arpspoof");
         return false;
     }
+
+    //receive packet
+    recv_ = std::thread(&Capture::run, &capInstance, packet);
     return true;
 }
 
@@ -105,8 +95,8 @@ bool CaptivePortal::doClose()
     }
     return true;
 }
-
-/*void CaptivePortal::propLoad(QJsonObject jo)
+/*
+void CaptivePortal::propLoad(QJsonObject jo)
 {
     GProp::propLoad(jo);
     jo["capturer"] >> capturer_;
@@ -176,7 +166,7 @@ void CaptivePortal::processPacket(Packet *packet)
             if (it != tcpdata.end())
             {
                 spdlog::info("infection off"+std::string(ipHdr->sip()));
-				capturer_.removeFlows(ipHdr->sip(), gwIp_, gwIp_, ipHdr->sip());
+                capturer_.removeFlows(Flow(ethHdr->smac(), ipHdr->sip()));
             }
             else if(it == tcpdata.end())
             {

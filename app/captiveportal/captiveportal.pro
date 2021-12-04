@@ -12,12 +12,6 @@ include(../../cp.pri)
 
 DESTDIR = $${PWD}/../../bin
 
-LIBS += -LSS{PWD}/../../../opennet/bin -lopennet
-
-INCLUDEPATH += $${PWD}/../../../opennet/src
-INCLUDEPATH += $${PWD}/../../../opennet/include
-PRE_TARGETDEPS += $${PWD}/../../../opennet/bin/libOpenNet.a
-
 RESOURCES += image.qrc
 
 SOURCES += \
@@ -55,8 +49,3 @@ HEADERS += \
 
 FORMS += \
     mainwindow.ui
-
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target

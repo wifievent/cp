@@ -14,9 +14,9 @@ MainWindow::MainWindow(QWidget *parent)
     cp_ = new CaptivePortal(this);
 
     QJsonObject jo = GJson::loadFromFile();
-    jo["MainWindow"] >> *cp_;
+    //jo["MainWindow"] >> *cp_;
 
-    ui_->lineEdit->setText(cp_->redirectpage_);
+    ui_->lineEdit->setText(p_->redirectpage_);
     ui_->comboBox->setCurrentIndex(ui_->comboBox->findData(cp_->intfname_));
     //ui_->comboBox->setCurrentText(cp_->intfname_);
 
@@ -55,7 +55,7 @@ MainWindow::~MainWindow()
     QJsonObject jo = GJson::loadFromFile();
     cp_->redirectpage_ = ui_->lineEdit->text();
     cp_->intfname_ = ui_->comboBox->currentData().toString();
-    jo["MainWindow"] << *cp_;
+    //jo["MainWindow"] << *cp_;
     GJson::saveToFile(jo);
 
     if(cp_ != nullptr)

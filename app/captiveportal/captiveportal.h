@@ -5,17 +5,20 @@
 #include "pcapdevice.h"
 #include "ip.h"
 #include "spdlog/spdlog.h"
+#include "arpspoof.h"
+#include "capture.h"
 class CaptivePortal : public Obj
 {
-    Q_OBJECT
-    Q_PROPERTY(QString intfname MEMBER intfname_)
-    Q_PROPERTY(QString redirectpage MEMBER redirectpage_)
-
-    GAutoArpSpoof capturer_;
+    //Q_OBJECT
+    //Q_PROPERTY(QString intfname MEMBER intfname_)
+    //Q_PROPERTY(QString redirectpage MEMBER redirectpage_)
+    ArpSpoof capturer_;
     TcpBlock tcpblock_;
     PcapDevice writer_;
-
+    std::thread recv_;
+    Capture& capInstance = Capture::getInstance();
     Ip host_;
+    Packet* packet;
 
 public:
     std::string intfname_;
@@ -23,7 +26,7 @@ public:
     Ip gwIp_;
 
 public:
-    CaptivePortal();
+    CaptivePortal(QWidget *parent = nullptr);
     ~CaptivePortal() override {close();};
 
 private:
@@ -33,10 +36,5 @@ protected:
     bool doOpen() override;
     bool doClose() override;
 
-public:
-    //void propLoad(QJsonObject jo) override;
-    //void propSave(QJsonObject& jo) override;
-
-public slots:
     void processPacket(Packet* packet);
 };
