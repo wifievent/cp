@@ -26,7 +26,7 @@ public:
     Ip gwIp_;
 
 public:
-    CaptivePortal(QWidget *parent = nullptr);
+    CaptivePortal();
     ~CaptivePortal() override {close();};
 
 private:

@@ -1,5 +1,5 @@
 #include "captiveportal.h"
-CaptivePortal::CaptivePortal(QWidget *parent)
+CaptivePortal::CaptivePortal()
 {
     tcpblock_.backwardRst_ = false;
     tcpblock_.backwardFin_ = true;
