@@ -1,4 +1,30 @@
 #include "core.h"
+
+//after infection
+void Core::removeFlows(Flow sender) { //sender == not gateway
+    {
+        std::lock_guard<std::mutex> lock(infectionList_.m_);
+        arpspoof_.sendRecover(sender);
+        std::list<Flow>::iterator iter;
+        for(iter = infectionList_.begin(); iter!= infectionList_.end(); iter++) {
+            if(iter->ip_ == sender.ip_){
+                infectionList_.erase(iter);
+                break;
+            }
+        }
+    }
+}
+
+bool Core::sendArpInfectAll() {
+    std::lock_guard<std::mutex> lock(infectionList_.m_);
+    for (Flow& flow: infectionList_) {
+        if (!arpspoof_.sendInfect(flow))
+            return false;
+        std::this_thread::sleep_for(std::chrono::milliseconds(sendInterval_));
+    }
+    return true;
+}
+
 void Core::captured(Packet *packet)
 {
     EthHdr* ethHdr = packet->ethHdr_;
@@ -53,7 +79,7 @@ void Core::captured(Packet *packet)
             if (it != tcpdata.end())
             {
                 spdlog::info("infection off"+std::string(ipHdr->sip()));
-                arpspoof_.removeFlows(Flow(ethHdr->smac(), ipHdr->sip()));
+                removeFlows(Flow(ethHdr->smac(), ipHdr->sip()));
             }
             else if(it == tcpdata.end())
             {
@@ -111,55 +137,90 @@ void Core::prepare() {
     spdlog::info("domain="+redirectpage_+",ip="+string(host_));
 }
 
-void Core::checkForReInfection(){
-    std::set<Flow>::iterator iter;
-    struct timeval now;
-    for(iter = arpspoof_.timeSet_.begin(); iter != arpspoof_.timeSet_.end(); iter++){
-        gettimeofday(&now, NULL);
-
-        //because of not to modify
-        if((now.tv_sec-iter->lastAccess_.tv_sec) % reinfectionTime == 0) {
-            arpspoof_.infectionList_.push_back(*iter);
-        }
-    }
-
-}
 
 void Core::checkForInfection(){
-    std::list<Flow>::iterator iter;
+    std::list<Flow>::iterator iter_l;
+    std::set<Flow>::iterator iter_s;
     struct timeval now;
-    for(iter = arpspoof_.infectionList_.begin(); iter != arpspoof_.infectionList_.end(); iter++) {
-        gettimeofday(&now, NULL);
+    while(active) {
+        for(iter_l = infectionList_.begin(); iter_l != infectionList_.end(); iter_l++) {
+            gettimeofday(&now, NULL);
 
-        if((now.tv_sec-iter->lastAccess_.tv_sec)%infectionTime == 0) {
-            arpspoof_.removeFlows(*iter);
+            if((now.tv_sec-iter_l->lastAccess_.tv_sec) % infectionTime == 0) {
+                removeFlows(*iter_l);//include recover
+            }
         }
+
+        for(iter_s = timeSet_.begin(); iter_s != timeSet_.end(); iter_s++){
+            gettimeofday(&now, NULL);
+
+            //because of not to modify
+            if((now.tv_sec-iter_s->lastAccess_.tv_sec) % reinfectionTime == 0) {
+                infectionList_.push_back(*iter_s);
+            }
+        }
+        std::unique_lock<std::mutex> lock(Mutex_);
+        if(myCv_.wait_for(lock,std::chrono::milliseconds(sendInfectionTime)) == std::cv_status::no_timeout) break;
     }
-
 }
-void Core::read() {
-    Packet* packet;
 
+void Core::read() {
     while (active) {
-        Packet::Result res = capturer_.read(packet);
+        Packet::Result res = capturer_.read(packet_);
         if (res == Packet::None) continue;
         if (res == Packet::Eof || res == Packet::Fail) break;
-        arpspoof_.detect(packet);
-        arpspoof_.sendArpInfectAll();
+
+        //find host
+        Flow host = arpspoof_.detect(packet_);
+        if(host.mac_ != Mac::nullMac() && timeSet_.find(host) == timeSet_.end()) {
+            timeSet_.insert(host);
+            infectionList_.push_back(host);
+        }
+    }
+}
+
+void Core::infect() {
+    while (active) {
+        sendArpInfectAll();
+        std::unique_lock<std::mutex> lock(Mutex_);
+        if(myCv_.wait_for(lock,std::chrono::milliseconds(sendInfectionTime)) == std::cv_status::no_timeout) break;
     }
 }
 
 Core::Core(){
+    Json::Value jv;
+    if(AppJson::loadFromFile("captiveportal.json",jv)){
+        load(jv);
+
+    }
+    save(jv);
+    AppJson::saveToFile("captiveportal.json",jv);
+}
+
+void Core::start() {
     prepare();
     readPacket_ = new std::thread(&Core::read,this);
+    infectHost_ = new std::thread(&Core::infect,this);
+    checkTime_ = new std::thread(&Core::checkForInfection,this);
+}
 
+void Core::stop() {
+    active = false;
+    myCv_.notify_all();
+    readPacket_->join();
+    infectHost_->join();
+    checkTime_->join();
 }
 void Core::load(Json::Value& json) {
     json["infectionTime"] >> infectionTime;
     json["reinfectionTime"] >> reinfectionTime;
+    json["sendInfectionTime"] >> sendInfectionTime;
+    json["sendInterval_"] >> sendInterval_;
 }
 
 void Core::save(Json::Value& json) {
     json["infectionTime"] << infectionTime;
     json["reinfectionTime"] << reinfectionTime;
+    json["sendInfectionTime"] << sendInfectionTime;
+    json["sendInterval_"] << sendInterval_;
 }

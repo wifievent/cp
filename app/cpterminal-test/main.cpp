@@ -3,6 +3,5 @@
 int main()
 {
     Core core;
-    core.prepare();
-    core
+    core.start();
 }
