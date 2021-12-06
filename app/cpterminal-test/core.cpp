@@ -91,8 +91,9 @@ void Core::captured(Packet *packet)
 }
 
 void Core::prepare() {
-    arpspoof_.open();
+    writer_.open();
     tcpblock_.open();
+    arpspoof_.open();
 
     tcpblock_.backwardRst_ = false;
     tcpblock_.backwardFin_ = true;
@@ -187,14 +188,14 @@ void Core::infect() {
     }
 }
 
-Core::Core(){
+/*Core::Core(){
     /*Json::Value jv;
     if(AppJson::loadFromFile("captiveportal.json",jv)){
         load(jv);
     }
     save(jv);
-    AppJson::saveToFile("captiveportal.json",jv);*/
-}
+    AppJson::saveToFile("captiveportal.json",jv);
+}*/
 
 void Core::start() {
     prepare();

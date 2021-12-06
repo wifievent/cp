@@ -1,9 +1,10 @@
 #pragma once
 #include "tcpblock.h"
+#include "arpspoof.h"
 #include "appjson.h"
-struct Core : Obj
+struct Core
 {
-    Core();
+    Core(){};
     ~Core(){};
     struct InfectionList : std::list<Flow> { //for infection
         std::mutex m_;
