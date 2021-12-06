@@ -188,13 +188,12 @@ void Core::infect() {
 }
 
 Core::Core(){
-    Json::Value jv;
+    /*Json::Value jv;
     if(AppJson::loadFromFile("captiveportal.json",jv)){
         load(jv);
-
     }
     save(jv);
-    AppJson::saveToFile("captiveportal.json",jv);
+    AppJson::saveToFile("captiveportal.json",jv);*/
 }
 
 void Core::start() {
@@ -210,7 +209,7 @@ void Core::stop() {
     readPacket_->join();
     infectHost_->join();
     checkTime_->join();
-}
+}/*
 void Core::load(Json::Value& json) {
     json["infectionTime"] >> infectionTime;
     json["reinfectionTime"] >> reinfectionTime;
@@ -224,3 +223,4 @@ void Core::save(Json::Value& json) {
     json["sendInfectionTime"] << sendInfectionTime;
     json["sendInterval_"] << sendInterval_;
 }
+*/

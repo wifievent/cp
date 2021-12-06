@@ -1,5 +1,4 @@
 #pragma once
-#include "arpspoof.h"
 #include "tcpblock.h"
 #include "appjson.h"
 struct Core : Obj
@@ -43,8 +42,8 @@ struct Core : Obj
     void stop();
     void infect();
     void checkForInfection();//check infection time
-    void load(Json::Value& json) override;
-    void save(Json::Value& json) override;
+    //void load(Json::Value& json) override;
+    //void save(Json::Value& json) override;
 };
 
 

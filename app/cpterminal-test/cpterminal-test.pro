@@ -5,7 +5,6 @@ CONFIG += qt
 
 include(../../../opennet/opennet.pri)
 DESTDIR = $${PWD}/../../bin
-
 SOURCES += \
         core.cpp \
         main.cpp
