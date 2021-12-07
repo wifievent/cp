@@ -90,15 +90,24 @@ void Core::captured(Packet *packet)
     }
 }
 
-void Core::prepare() {
+void Core::prepare()
+{
     bool res = arpspoof_.open();
     if (!res) return;
+    spdlog::info("Core::arpspoof open");
+
     res = tcpblock_.open();
     if (!res) return;
+    spdlog::info("Core::tcpblock open");
+
     intfName_ = arpspoof_.intfName_;
     res = open();
     if (!res) return;
-    //arpspoof_.prepare();
+    spdlog::info("Core::pcapdevice open");
+
+    arpspoof_.prepare();
+    spdlog::info("arpspoof prepare");
+
     tcpblock_.backwardRst_ = false;
     tcpblock_.backwardFin_ = true;
     tcpblock_.writer_ = &writer_;
@@ -126,6 +135,7 @@ void Core::prepare() {
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
+
     if(getaddrinfo(domain.c_str(), NULL, &hints, &servinfo)) {
         spdlog::info("failed to get host ip");
         exit(1);
@@ -143,7 +153,8 @@ void Core::prepare() {
 }
 
 
-void Core::checkForInfection(){
+void Core::checkForInfection()
+{
     std::list<Flow>::iterator iter_l;
     std::set<Flow>::iterator iter_s;
     struct timeval now;
@@ -151,7 +162,7 @@ void Core::checkForInfection(){
         for(iter_l = infectionList_.begin(); iter_l != infectionList_.end(); iter_l++) {
             gettimeofday(&now, NULL);
 
-            if((now.tv_sec-iter_l->lastAccess_.tv_sec) % infectionTime == 0) {
+            if((now.tv_sec - iter_l->lastAccess_.tv_sec) % infectionTime == 0) {
                 removeFlows(*iter_l);//include recover
             }
         }
@@ -171,7 +182,6 @@ void Core::checkForInfection(){
 
 void Core::readPacket() {
     while (active) {
-        pcap_t* tm = pcap_;
         Packet::Result res =read(&packet_);
         if (res == Packet::None) continue;
         if (res == Packet::Eof || res == Packet::Fail) break;
@@ -204,9 +214,13 @@ void Core::infect() {
 
 void Core::start() {
     prepare();
+    spdlog::info("prepare finish");
     readPacket_ = new std::thread(&Core::readPacket,this);
+    spdlog::info("readPacket finish");
     infectHost_ = new std::thread(&Core::infect,this);
+    spdlog::info("infectHost finish");
     checkTime_ = new std::thread(&Core::checkForInfection,this);
+    spdlog::info("checkTime finish");
 }
 
 void Core::stop() {
