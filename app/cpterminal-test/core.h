@@ -17,7 +17,7 @@ struct Core : PcapDevice
     std::string redirectpage_ = "http://wifievent.io";
     ArpSpoof arpspoof_;
     TcpBlock tcpblock_;
-    PcapDevice& writer_ = PcapDevice::getInstance();
+    PcapDevice writer_;
     PcapCapture capturer_;
     EthPacket packet_;
 

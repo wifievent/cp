@@ -96,7 +96,7 @@ void Core::prepare() {
     res = tcpblock_.open();
     if (!res) return;
     intfName_ = arpspoof_.intfName_;
-    res = PcapDevice::open();
+    res = open();
     if (!res) return;
     //arpspoof_.prepare();
     tcpblock_.backwardRst_ = false;
@@ -171,6 +171,7 @@ void Core::checkForInfection(){
 
 void Core::readPacket() {
     while (active) {
+        pcap_t* tm = pcap_;
         Packet::Result res =read(&packet_);
         if (res == Packet::None) continue;
         if (res == Packet::Eof || res == Packet::Fail) break;
@@ -203,7 +204,6 @@ void Core::infect() {
 
 void Core::start() {
     prepare();
-    readPacket();
     readPacket_ = new std::thread(&Core::readPacket,this);
     infectHost_ = new std::thread(&Core::infect,this);
     checkTime_ = new std::thread(&Core::checkForInfection,this);
