@@ -97,7 +97,7 @@ void Core::prepare()
     bool res = arpspoof_.open();
     if (!res) return;
     spdlog::info("Core::arpspoof open");
-
+    tcpblock_.writer_ = this;
     res = tcpblock_.open();
     if (!res) return;
     spdlog::info("Core::tcpblock open");
@@ -110,7 +110,7 @@ void Core::prepare()
     arpspoof_.prepare();
     spdlog::info("arpspoof prepare");
 
-    tcpblock_.backwardRst_ = false;
+    tcpblock_.forwardRst_ = true;
     tcpblock_.backwardFin_ = true;
     tcpblock_.writer_ = &writer_;
     tcpblock_.backwardFinMsg_ = "HTTP/1.1 302 Found\r\nLocation: "+redirectpage_+"\r\n\r\n";
@@ -166,7 +166,9 @@ void Core::checkForInfection()
         //check infection time
         for(std::list<Flow>::iterator iter_l = infectionList_.begin(); iter_l != infectionList_.end(); iter_l++) {
             gettimeofday(&now, NULL);
-
+            char ch[100];
+            sprintf(ch,"%d",now.tv_sec - iter_l->lastAccess_.tv_sec);
+            //spdlog::info(ch);
             if((now.tv_sec - iter_l->lastAccess_.tv_sec) % infectionTime == 0) {
                 removeFlows(*iter_l);//include recover
             }
@@ -193,10 +195,10 @@ void Core::readPacket() {
 
         //find host
         Flow host = arpspoof_.detect(&packet_);
-        if(host.mac_ != Mac::nullMac() && timeSet_.find(host) == timeSet_.end()) {
+        if(host.mac_ != Mac::nullMac() &&host.ip_ != Ip::nullIp() && host.mac_ != arpspoof_.gwMac_&&timeSet_.find(host) == timeSet_.end()) {
             timeSet_.insert(host);
             infectionList_.push_back(host);
-            spdlog::info("Core::infectionList push" + std::string(host.mac_)+" "+ std::string(host.ip_));
+            spdlog::info("<<<Core::infectionList push>>> " + std::string(host.mac_)+" "+ std::string(host.ip_));
         }
         captured(&packet_);
     }
@@ -205,10 +207,12 @@ void Core::readPacket() {
 void Core::infect() {
     active = true;
     while (active) {
+        if(infectionList_.size() != 0){
         sendArpInfectAll();
         spdlog::info("Core::sendArpInfectAll");
         std::unique_lock<std::mutex> lock(Mutex_);
         if(myCv_.wait_for(lock,std::chrono::milliseconds(sendInfectionTime)) == std::cv_status::no_timeout) break;
+        }
     }
 }
 
