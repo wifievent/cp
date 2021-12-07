@@ -23,11 +23,11 @@ struct Core : PcapDevice
 
     int infectionTime = 15; //15 seconds
     int reinfectionTime = 3600; // 60 minutes
-    int sendInfectionTime = 30000; // 3 seconds
+    int sendInfectionTime = 10000; // 1 seconds
     int sendInterval_ = 10000; // 1 seconds
 
     Ip host_;
-    bool active = true;
+    bool active;
     std::mutex Mutex_;
     std::thread* readPacket_;
     std::thread* infectHost_;

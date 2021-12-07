@@ -20,6 +20,7 @@ bool Core::sendArpInfectAll() {
     for (Flow& flow: infectionList_) {
         if (!arpspoof_.sendInfect(flow))
             return false;
+        spdlog::info("Core::sendInfect");
         std::this_thread::sleep_for(std::chrono::milliseconds(sendInterval_));
     }
     return true;
@@ -92,6 +93,7 @@ void Core::captured(Packet *packet)
 
 void Core::prepare()
 {
+    active = true;
     bool res = arpspoof_.open();
     if (!res) return;
     spdlog::info("Core::arpspoof open");
@@ -155,11 +157,14 @@ void Core::prepare()
 
 void Core::checkForInfection()
 {
-    std::list<Flow>::iterator iter_l;
-    std::set<Flow>::iterator iter_s;
     struct timeval now;
+    active = true;
     while(active) {
-        for(iter_l = infectionList_.begin(); iter_l != infectionList_.end(); iter_l++) {
+        std::unique_lock<std::mutex> lock(Mutex_);
+        if(myCv_.wait_for(lock,std::chrono::milliseconds(sendInfectionTime)) == std::cv_status::no_timeout) break;
+
+        //check infection time
+        for(std::list<Flow>::iterator iter_l = infectionList_.begin(); iter_l != infectionList_.end(); iter_l++) {
             gettimeofday(&now, NULL);
 
             if((now.tv_sec - iter_l->lastAccess_.tv_sec) % infectionTime == 0) {
@@ -167,7 +172,8 @@ void Core::checkForInfection()
             }
         }
 
-        for(iter_s = timeSet_.begin(); iter_s != timeSet_.end(); iter_s++){
+        //check reinfection time
+        for(std::set<Flow>::iterator iter_s = timeSet_.begin(); iter_s != timeSet_.end(); iter_s++){
             gettimeofday(&now, NULL);
 
             //because of not to modify
@@ -175,12 +181,11 @@ void Core::checkForInfection()
                 infectionList_.push_back(*iter_s);
             }
         }
-        std::unique_lock<std::mutex> lock(Mutex_);
-        if(myCv_.wait_for(lock,std::chrono::milliseconds(sendInfectionTime)) == std::cv_status::no_timeout) break;
     }
 }
 
 void Core::readPacket() {
+    active = true;
     while (active) {
         Packet::Result res =read(&packet_);
         if (res == Packet::None) continue;
@@ -191,13 +196,17 @@ void Core::readPacket() {
         if(host.mac_ != Mac::nullMac() && timeSet_.find(host) == timeSet_.end()) {
             timeSet_.insert(host);
             infectionList_.push_back(host);
+            spdlog::info("Core::infectionList push" + std::string(host.mac_)+" "+ std::string(host.ip_));
         }
+        captured(&packet_);
     }
 }
 
 void Core::infect() {
+    active = true;
     while (active) {
         sendArpInfectAll();
+        spdlog::info("Core::sendArpInfectAll");
         std::unique_lock<std::mutex> lock(Mutex_);
         if(myCv_.wait_for(lock,std::chrono::milliseconds(sendInfectionTime)) == std::cv_status::no_timeout) break;
     }
