@@ -25,7 +25,7 @@ public:
 
 private:
     bool setIntfnameList();
-    GIp getGatewayIp();
+    Ip getGatewayIp();
 
 private slots:
     void on_btnStartStop_clicked();
