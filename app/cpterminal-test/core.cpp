@@ -91,10 +91,14 @@ void Core::captured(Packet *packet)
 }
 
 void Core::prepare() {
-    writer_.open();
-    tcpblock_.open();
-    arpspoof_.open();
-
+    bool res = arpspoof_.open();
+    if (!res) return;
+    res = tcpblock_.open();
+    if (!res) return;
+    intfName_ = arpspoof_.intfName_;
+    res = PcapDevice::open();
+    if (!res) return;
+    //arpspoof_.prepare();
     tcpblock_.backwardRst_ = false;
     tcpblock_.backwardFin_ = true;
     tcpblock_.writer_ = &writer_;
@@ -165,14 +169,14 @@ void Core::checkForInfection(){
     }
 }
 
-void Core::read() {
+void Core::readPacket() {
     while (active) {
-        Packet::Result res = capturer_.read(packet_);
+        Packet::Result res =read(&packet_);
         if (res == Packet::None) continue;
         if (res == Packet::Eof || res == Packet::Fail) break;
 
         //find host
-        Flow host = arpspoof_.detect(packet_);
+        Flow host = arpspoof_.detect(&packet_);
         if(host.mac_ != Mac::nullMac() && timeSet_.find(host) == timeSet_.end()) {
             timeSet_.insert(host);
             infectionList_.push_back(host);
@@ -199,7 +203,8 @@ void Core::infect() {
 
 void Core::start() {
     prepare();
-    readPacket_ = new std::thread(&Core::read,this);
+    readPacket();
+    readPacket_ = new std::thread(&Core::readPacket,this);
     infectHost_ = new std::thread(&Core::infect,this);
     checkTime_ = new std::thread(&Core::checkForInfection,this);
 }

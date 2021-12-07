@@ -2,7 +2,7 @@
 #include "tcpblock.h"
 #include "arpspoof.h"
 #include "appjson.h"
-struct Core
+struct Core : PcapDevice
 {
     Core(){};
     ~Core(){};
@@ -17,9 +17,9 @@ struct Core
     std::string redirectpage_ = "http://wifievent.io";
     ArpSpoof arpspoof_;
     TcpBlock tcpblock_;
-    PcapDevice writer_;
+    PcapDevice& writer_ = PcapDevice::getInstance();
     PcapCapture capturer_;
-    Packet* packet_;
+    EthPacket packet_;
 
     int infectionTime = 15; //15 seconds
     int reinfectionTime = 3600; // 60 minutes
@@ -39,7 +39,7 @@ struct Core
     void removeFlows(Flow sender);
     void prepare();
     void captured(Packet *packet);
-    void read();
+    void readPacket();
     void stop();
     void infect();
     void checkForInfection();//check infection time
