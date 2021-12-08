@@ -21,13 +21,13 @@ struct Core : PcapDevice
     PcapCapture capturer_;
     EthPacket packet_;
 
-    int infectionTime = 15; //15 seconds
+    int infectionTime = 15000; //15 seconds
     int reinfectionTime = 3600; // 60 minutes
-    int sendInfectionTime = 30000; // 3 seconds
-    int sendInterval_ = 10000; // 1 seconds
+    int sendInfectionTime = 1000; // 1 seconds
+    int sendInterval_ = 100; // 1 seconds
 
     Ip host_;
-    bool active = true;
+    bool active;
     std::mutex Mutex_;
     std::thread* readPacket_;
     std::thread* infectHost_;
