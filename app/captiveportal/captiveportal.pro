@@ -7,7 +7,7 @@ CONFIG += c++17
 TEMPLATE = app
 CONFIG += qt
 
-include(../../../opennet/opennet.pri)
+include(../../../g/g.pri)
 include(../../cp.pri)
 
 DESTDIR = $${PWD}/../../bin
@@ -49,3 +49,8 @@ HEADERS += \
 
 FORMS += \
     mainwindow.ui
+
+# Default rules for deployment.
+qnx: target.path = /tmp/$${TARGET}/bin
+else: unix:!android: target.path = /opt/$${TARGET}/bin
+!isEmpty(target.path): INSTALLS += target

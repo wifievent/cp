@@ -1,32 +1,26 @@
 #pragma once
 
 #include "stdafx.h"
-#include "tcpblock.h"
-#include "pcapdevice.h"
-#include "ip.h"
-#include "spdlog/spdlog.h"
-#include "arpspoof.h"
-#include "capture.h"
-class CaptivePortal : public Obj
+
+class CaptivePortal : public GStateObj
 {
-    //Q_OBJECT
-    //Q_PROPERTY(QString intfname MEMBER intfname_)
-    //Q_PROPERTY(QString redirectpage MEMBER redirectpage_)
-    ArpSpoof capturer_;
-    TcpBlock tcpblock_;
-    PcapDevice writer_;
-    std::thread recv_;
-    Capture& capInstance = Capture::getInstance();
-    Ip host_;
-    Packet* packet;
+    Q_OBJECT
+    Q_PROPERTY(QString intfname MEMBER intfname_)
+    Q_PROPERTY(QString redirectpage MEMBER redirectpage_)
+
+    GAutoArpSpoof capturer_;
+    GTcpBlock tcpblock_;
+    GPcapDeviceWrite writer_;
+
+    GIp host_;
 
 public:
-    std::string intfname_;
-    std::string redirectpage_;
-    Ip gwIp_;
+    QString intfname_;
+    QString redirectpage_;
+    GIp gwIp_;
 
 public:
-    CaptivePortal();
+    CaptivePortal(QWidget *parent = nullptr);
     ~CaptivePortal() override {close();};
 
 private:
@@ -36,5 +30,10 @@ protected:
     bool doOpen() override;
     bool doClose() override;
 
-    void processPacket(Packet* packet);
+public:
+    void propLoad(QJsonObject jo) override;
+    void propSave(QJsonObject& jo) override;
+
+public slots:
+    void processPacket(GPacket* packet);
 };

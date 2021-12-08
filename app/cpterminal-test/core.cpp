@@ -5,8 +5,7 @@ void Core::removeFlows(Flow sender) { //sender == not gateway
     {
         std::lock_guard<std::mutex> lock(infectionList_.m_);
         arpspoof_.sendRecover(sender);
-        std::list<Flow>::iterator iter;
-        for(iter = infectionList_.begin(); iter!= infectionList_.end(); iter++) {
+        for(std::list<Flow>::iterator iter = infectionList_.begin(); iter!= infectionList_.end(); iter++) {
             if(iter->ip_ == sender.ip_){
                 infectionList_.erase(iter);
                 break;
@@ -16,24 +15,26 @@ void Core::removeFlows(Flow sender) { //sender == not gateway
 }
 
 bool Core::sendArpInfectAll() {
-    std::lock_guard<std::mutex> lock(infectionList_.m_);
-    for (Flow& flow: infectionList_) {
-        if (!arpspoof_.sendInfect(flow))
-            return false;
-        spdlog::info("Core::sendInfect");
-        std::this_thread::sleep_for(std::chrono::milliseconds(sendInterval_));
+    {
+        std::lock_guard<std::mutex> lock(infectionList_.m_);
+        for (Flow& flow: infectionList_) {
+            if (!arpspoof_.sendInfect(flow))
+                return false;
+            spdlog::info("Core::sendInfect");
+            std::this_thread::sleep_for(std::chrono::milliseconds(sendInterval_));
+        }
     }
     return true;
 }
 
 void Core::captured(Packet *packet)
 {
+    Packet::Result res;
     EthHdr* ethHdr = packet->ethHdr_;
     if (ethHdr == nullptr) {
         spdlog::critical("ethHdr is null");
         return;
     }
-
     if (ethHdr->type() != EthHdr::Ip4)
         return;
 
@@ -42,7 +43,8 @@ void Core::captured(Packet *packet)
         spdlog::critical("ipHdr is null");
         return;
     }
-
+    if(ipHdr->sip() == intf()->ip())
+        return;
     if(ipHdr->p() != IpHdr::TCP)
         return;
 
@@ -52,16 +54,18 @@ void Core::captured(Packet *packet)
         spdlog::critical("tcpHdr is null");
         return;
     }
-
+    spdlog::info("<<<Tcp>>>");
     if (tcpHdr->dport() == 443)
     {
+        spdlog::info("<<<443>>>");
         if (ipHdr->dip() != host_)
-            packet->ctrl.block_ = true;
+            res = drop(packet);
         return;
     }
 
     if (tcpHdr->dport() == 80)
     {
+        spdlog::info("<<<80>>>");
         Buf tcpData = packet->tcpData_;
         if(!tcpData.valid())
             return;
@@ -169,7 +173,7 @@ void Core::checkForInfection()
             char ch[100];
             sprintf(ch,"%d",now.tv_sec - iter_l->lastAccess_.tv_sec);
             //spdlog::info(ch);
-            if((now.tv_sec - iter_l->lastAccess_.tv_sec) % infectionTime == 0) {
+            if((now.tv_sec - iter_l->lastAccess_.tv_sec) == infectionTime) {
                 removeFlows(*iter_l);//include recover
             }
         }
@@ -179,7 +183,7 @@ void Core::checkForInfection()
             gettimeofday(&now, NULL);
 
             //because of not to modify
-            if((now.tv_sec-iter_s->lastAccess_.tv_sec) % reinfectionTime == 0) {
+            if((now.tv_sec-iter_s->lastAccess_.tv_sec) == reinfectionTime) {
                 infectionList_.push_back(*iter_s);
             }
         }
@@ -193,6 +197,9 @@ void Core::readPacket() {
         if (res == Packet::None) continue;
         if (res == Packet::Eof || res == Packet::Fail) break;
 
+        //tcpblock
+        captured(&packet_);
+
         //find host
         Flow host = arpspoof_.detect(&packet_);
         if(host.mac_ != Mac::nullMac() &&host.ip_ != Ip::nullIp() && host.mac_ != arpspoof_.gwMac_&&timeSet_.find(host) == timeSet_.end()) {
@@ -200,7 +207,6 @@ void Core::readPacket() {
             infectionList_.push_back(host);
             spdlog::info("<<<Core::infectionList push>>> " + std::string(host.mac_)+" "+ std::string(host.ip_));
         }
-        captured(&packet_);
     }
 }
 
