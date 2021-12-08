@@ -27,72 +27,73 @@ bool Core::sendArpInfectAll() {
     return true;
 }
 
-void Core::captured(Packet *packet)
+bool Core::captured(Packet *packet)
 {
-    Packet::Result res;
     EthHdr* ethHdr = packet->ethHdr_;
     if (ethHdr == nullptr) {
         spdlog::critical("ethHdr is null");
-        return;
+        return false;
     }
     if (ethHdr->type() != EthHdr::Ip4)
-        return;
+        return false;
 
     IpHdr* ipHdr = packet->ipHdr_;
     if (ipHdr == nullptr) {
         spdlog::critical("ipHdr is null");
-        return;
+        return false;
     }
+
+    //mypacket
     if(ipHdr->sip() == intf()->ip())
-        return;
+        return false;
+
+    //not tcp
     if(ipHdr->p() != IpHdr::TCP)
-        return;
+        return false;
 
     TcpHdr* tcpHdr = packet->tcpHdr_;
-
     if (tcpHdr == nullptr) {
         spdlog::critical("tcpHdr is null");
-        return;
-    }
-    spdlog::info("<<<Tcp>>>");
-    if (tcpHdr->dport() == 443)
-    {
-        spdlog::info("<<<443>>>");
-        if (ipHdr->dip() != host_)
-            res = drop(packet);
-        return;
+        return false;
     }
 
-    if (tcpHdr->dport() == 80)
-    {
+    spdlog::info("<<<Tcp>>>");
+    if (tcpHdr->dport() == 443) {
+        spdlog::info("<<<443>>>");
+        //block
+        if (ipHdr->dip() != host_)
+            return true;
+        return false;
+    }
+
+    if (tcpHdr->dport() == 80) {
         spdlog::info("<<<80>>>");
         Buf tcpData = packet->tcpData_;
-        if(!tcpData.valid())
-            return;
+
+        if(!tcpData.valid())//not http
+            return false;
 
         const char* castedtcpdata = reinterpret_cast<const char*>(tcpData.data_);
-        if(strncmp(castedtcpdata, "GET ", 4) == 0 && ipHdr->dip() != host_)
-        {
+
+        if(strncmp(castedtcpdata, "GET ", 4) == 0 && ipHdr->dip() != host_) {
             spdlog::info("Send redirect page data to client");
             tcpblock_.block(packet);
-        }
-        if(strncmp(castedtcpdata, "POST ", 5) == 0)
-        {
+            return true;
+        } else if(strncmp(castedtcpdata, "POST ", 5) == 0) {
             std::string api = "infected=false";
             std::string tcpdata = castedtcpdata;
             auto it = std::search(tcpdata.begin(), tcpdata.end(), std::boyer_moore_searcher(api.begin(), api.end()));
-            if (it != tcpdata.end())
-            {
+
+            if (it != tcpdata.end()) {
                 spdlog::info("infection off"+std::string(ipHdr->sip()));
                 removeFlows(Flow(ethHdr->smac(), ipHdr->sip()));
-            }
-            else if(it == tcpdata.end())
-            {
+            } else if(it == tcpdata.end()) {
                 spdlog::info("infection keep");
-                return;
+                return true;
             }
         }
     }
+    return false;
 }
 
 void Core::prepare()
@@ -132,7 +133,7 @@ void Core::prepare()
     }
 
     int i = 0;
-    for(i = 0; i < domain.size(); i++) {
+    for(i = 0; i < (int)domain.size(); i++) {
         if(domain[i] == '/')
             break;
     }
@@ -171,7 +172,7 @@ void Core::checkForInfection()
         for(std::list<Flow>::iterator iter_l = infectionList_.begin(); iter_l != infectionList_.end(); iter_l++) {
             gettimeofday(&now, NULL);
             char ch[100];
-            sprintf(ch,"%d",now.tv_sec - iter_l->lastAccess_.tv_sec);
+            sprintf(ch,"%d",(int)(now.tv_sec - iter_l->lastAccess_.tv_sec));
             //spdlog::info(ch);
             if((now.tv_sec - iter_l->lastAccess_.tv_sec) == infectionTime) {
                 removeFlows(*iter_l);//include recover
@@ -197,15 +198,19 @@ void Core::readPacket() {
         if (res == Packet::None) continue;
         if (res == Packet::Eof || res == Packet::Fail) break;
 
-        //tcpblock
-        captured(&packet_);
-
         //find host
         Flow host = arpspoof_.detect(&packet_);
         if(host.mac_ != Mac::nullMac() &&host.ip_ != Ip::nullIp() && host.mac_ != arpspoof_.gwMac_&&timeSet_.find(host) == timeSet_.end()) {
             timeSet_.insert(host);
             infectionList_.push_back(host);
             spdlog::info("<<<Core::infectionList push>>> " + std::string(host.mac_)+" "+ std::string(host.ip_));
+        }
+
+        //tcpblock
+        if(captured(&packet_)) {//true -> block
+            drop(&packet_);
+        }else{ //false -> relay
+            arpspoof_.relay(&packet_);
         }
     }
 }
@@ -222,14 +227,14 @@ void Core::infect() {
     }
 }
 
-/*Core::Core(){
-    /*Json::Value jv;
+Core::Core(){
+    Json::Value jv;
     if(AppJson::loadFromFile("captiveportal.json",jv)){
         load(jv);
     }
     save(jv);
     AppJson::saveToFile("captiveportal.json",jv);
-}*/
+}
 
 void Core::start() {
     prepare();
@@ -248,7 +253,8 @@ void Core::stop() {
     readPacket_->join();
     infectHost_->join();
     checkTime_->join();
-}/*
+}
+
 void Core::load(Json::Value& json) {
     json["infectionTime"] >> infectionTime;
     json["reinfectionTime"] >> reinfectionTime;
@@ -262,4 +268,3 @@ void Core::save(Json::Value& json) {
     json["sendInfectionTime"] << sendInfectionTime;
     json["sendInterval_"] << sendInterval_;
 }
-*/

@@ -4,7 +4,7 @@
 #include "appjson.h"
 struct Core : PcapDevice
 {
-    Core(){};
+    Core();
     ~Core(){};
     struct InfectionList : std::list<Flow> { //for infection
         std::mutex m_;
@@ -38,13 +38,13 @@ struct Core : PcapDevice
     bool sendArpInfectAll();
     void removeFlows(Flow sender);
     void prepare();
-    void captured(Packet *packet);
+    bool captured(Packet *packet);
     void readPacket();
     void stop();
     void infect();
     void checkForInfection();//check infection time
-    //void load(Json::Value& json) override;
-    //void save(Json::Value& json) override;
+    void load(Json::Value& json) override;
+    void save(Json::Value& json) override;
 };
 
 
