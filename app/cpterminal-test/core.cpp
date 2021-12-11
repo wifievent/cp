@@ -89,7 +89,6 @@ bool Core::captured(Packet *packet)
                 removeFlows(Flow(ethHdr->smac(), ipHdr->sip()));
             } else if(it == tcpdata.end()) {
                 spdlog::info("infection keep");
-                return true;
             }
         }
     }
@@ -102,18 +101,15 @@ void Core::prepare()
     bool res = arpspoof_.open();
     if (!res) return;
     spdlog::info("Core::arpspoof open");
-    tcpblock_.writer_ = this;
+
+    arpspoof_.prepare();
+    spdlog::info("arpspoof prepare");
+
+    tcpblock_.writer_ = &arpspoof_;
     res = tcpblock_.open();
     if (!res) return;
     spdlog::info("Core::tcpblock open");
 
-    intfName_ = arpspoof_.intfName_;
-    res = open();
-    if (!res) return;
-    spdlog::info("Core::pcapdevice open");
-
-    arpspoof_.prepare();
-    spdlog::info("arpspoof prepare");
 
     tcpblock_.forwardRst_ = true;
     tcpblock_.backwardFin_ = true;
@@ -194,7 +190,7 @@ void Core::checkForInfection()
 void Core::readPacket() {
     active = true;
     while (active) {
-        Packet::Result res =read(&packet_);
+        Packet::Result res =arpspoof_.read(&packet_);
         if (res == Packet::None) continue;
         if (res == Packet::Eof || res == Packet::Fail) break;
 
