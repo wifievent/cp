@@ -1,26 +1,30 @@
 let url = 'http://wifievent.io/api';
 url = 'http://localhost:3001';
 
+const webReq = axios.create({
+  baseURL: url,
+  withCredentials: true,
+  timeout: 1000,
+})
+
 window.onload = async function () {
-  const sessRes = await axios.get(`${url}/user/session`, {
-    withCredentials: true
+  const sessRes = await webReq({
+    url: '/user/session',
   });
   if (sessRes.status !== 200)
     return;
 
   exchangeUI();
 
-  const pageRes = await axios.get(`${url}/cp/page`, {
-    withCredentials: true,
-  }).catch(err => {
-    console.log(err.response);
-  });
+  const pageRes = await webReq({
+    url: '/cp/page',
+  })
   if (pageRes.status !== 200)
     return;
   
   $('#browsers').empty();
   for (const page of pageRes.data) {
-    const option = $(`<option value='${page.id}'>${page.name}</option>`);
+    const option = $(`<option value='${page.pid}'>${page.name}</option>`);
     $('#browsers').append(option);
   }
 };
@@ -35,8 +39,10 @@ document.querySelector('#button').addEventListener('click', async function () {
 
   const body = { uid, pw };
 
-  const loginRes = await axios.post(`${url}/user/login`, body, {
-    withCredentials: true,
+  const loginRes = await webReq({
+    method: 'POST',
+    url: '/user/login',
+    data: body,
   }).catch(err => {
     alert(err.response.statusText);
     return;
@@ -61,15 +67,25 @@ function exchangeUI(pageList) {
                     </div>`);
 }
 
-function cpStatus() {
-  if($('#button').text() === 'Start') {
-    //start logic
-    $('#buttonbox').attr('class','red-button-wrap button-wrap');
-    $('#button').text('Stop');
+async function cpReq(status, pid) {
+  await axios.post(`/${status}`, {
+    url: `${url}/cp/pagep/render/${pid}`,
+  }).catch(err => {
+    return 0;
+  });
+  return 1;
+}
+
+async function cpStatus() {
+  const status = $('button').text();
+  const pid = document.querySelector('#browsers').value;
+  const res = await cpReq(status.toLowerCase(), pid);
+  if(!res) {
+    alert(`${status} Failed`);
+    return;
   }
-  else if($('#button').text() === 'Stop') {
-    //stop logic
-    $('#buttonbox').attr('class','blue-button-wrap button-wrap');
-    $('#button').text('Start');
-  }
+
+  const buttonColor = status == 'Start' ? 'red' : 'blue';
+  $('#buttonbox').attr('class',`${buttonColor}-button-wrap button-wrap`);
+  $('#button').text(status);
 }
