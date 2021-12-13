@@ -13,11 +13,17 @@
 	padding:0;
 }
 
+body {
+	display: grid;
+	grid-template-rows: 7fr 1fr;
+}
+
 .input-section-wrap{
 	padding-top: 60px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	justify-content: center;
 }
 
 .input-wrap{
@@ -64,4 +70,11 @@
 
 body{
 	background:var(--body-background-color);
+}
+footer {
+	margin-top: 30px;
+	text-align: center;
+}
+p {
+	margin: 10px;
 }

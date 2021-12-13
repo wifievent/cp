@@ -45,7 +45,7 @@ document.querySelector('#button').addEventListener('click', async function () {
     return;
 
   alert('login success');
-  window.reload();
+  location.reload();
 });
 
 function exchangeUI(pageList) {
