@@ -67,23 +67,13 @@ function exchangeUI(pageList) {
                     </div>`);
 }
 
-async function cpReq(status, pid) {
-  await axios.post(`/${status}`, {
-    url: `${url}/cp/pagep/render/${pid}`,
-  }).catch(err => {
-    return 0;
-  });
-  return 1;
-}
-
 async function cpStatus() {
   let status = $('button').text();
   const pid = document.querySelector('#browsers').value;
-  const res = await cpReq(status.toLowerCase(), pid);
-  if(!res) {
+  await axios.post(`/${status}`, `${pid}`).catch(err => {
     alert(`${status} Failed`);
     return;
-  }
+  });
 
   let buttonColor;
   if (status == 'Start') {
