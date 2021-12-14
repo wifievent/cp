@@ -77,7 +77,7 @@ async function cpReq(status, pid) {
 }
 
 async function cpStatus() {
-  const status = $('button').text();
+  let status = $('button').text();
   const pid = document.querySelector('#browsers').value;
   const res = await cpReq(status.toLowerCase(), pid);
   if(!res) {
@@ -85,7 +85,14 @@ async function cpStatus() {
     return;
   }
 
-  const buttonColor = status == 'Start' ? 'red' : 'blue';
+  let buttonColor;
+  if (status == 'Start') {
+    buttonColor = 'red';
+    status = 'Stop';
+  } else {
+    buttonColor = 'blue';
+    status = 'Start';
+  }
   $('#buttonbox').attr('class',`${buttonColor}-button-wrap button-wrap`);
   $('#button').text(status);
 }
